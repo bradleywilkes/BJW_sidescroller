@@ -24,6 +24,8 @@ python3 -m http.server 8000   # then visit http://localhost:8000
 | Move   | ← → or A / D |
 | Jump   | ↑ / W / Space / Z (hold for height) |
 | Sword  | X / J / K |
+| Rising Strike | hold jump + X on the ground — leap with an upward cut |
+| Plunging Strike | ↓ + X in the air — dive blade-first; bounces you higher than a jump off a kill. Hold ↓ to pogo-chain |
 | Hurl fire | C / L *(once Brand banks the heat — Act II)* |
 | Start  | Enter · Pause P · Music M |
 
@@ -45,6 +47,11 @@ is still warm.
 - **Tending:** checkpoints are torches you light — `TENDED.` refills everything
 - **Kill chains** (DOUBLE! TRIPLE! RAMPAGE!), corpse-launch kill pops, hitstop,
   and a quiet HUD: ember-diamond hearts, three coals in the lantern, XP
+- **Aerial combat pays**: airborne kills earn +50% XP, and the plunge pogo-chains
+  through packs — dive perches are built over the campfire arena for exactly that
+- **The high road pays**: a 3-jump chain to a warm ember above the scarecrow
+  field, a skyway over the ravine, treetop coin tiers, secret braziers to slash
+  alight
 - **SPARK:** enough XP and the hero visibly transforms — slow-mo, converging
   embers, a shockwave — first stage of Spark → Kindled → Ablaze
 - **Grade card** at the act's end: time, the fallen, coals spent, best chain → D–S

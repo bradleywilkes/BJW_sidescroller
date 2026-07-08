@@ -409,6 +409,7 @@ const keys = {};
 const KEYMAP = {
   ArrowLeft:'left', KeyA:'left', ArrowRight:'right', KeyD:'right',
   ArrowUp:'jump', KeyW:'jump', Space:'jump', KeyZ:'jump',
+  ArrowDown:'down', KeyS:'down',
   KeyX:'atk', KeyJ:'atk', KeyK:'atk', KeyC:'cast', KeyL:'cast',
   Enter:'start', KeyM:'mute', KeyP:'pause',
 };
@@ -453,11 +454,13 @@ const SEGS = [
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
 ],
-[ // 2: the scarecrow. levies on the low road off the hill.
+[ // 2: the scarecrow. levies below, a 3-jump chain to a warm ember above.
   E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10,
+  E10+E10+'..e.......',
+  E10+E10+'.===......',
   E10+E10+E10,
-  E10+'...ccc....'+E10,
+  E10+'...ccc.==='+E10,
   E10+E10+E10,
   E10+'..=====...'+E10,
   '......c.c.'+E10+E10,
@@ -466,9 +469,12 @@ const SEGS = [
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
 ],
-[ // 3: the dead orchard. rolling humps, treetop coins, hound run.
+[ // 3: the dead orchard. rolling humps, three treetop tiers, hound run.
   E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10,
+  '........cc'+'c.........'+E10,
+  '........=='+'=.........'+E10,
+  E10+E10+E10,
   E10+'...cc.....'+E10,
   '.....cc...'+'..====....'+E10,
   '....====..'+E10+E10,
@@ -489,9 +495,11 @@ const SEGS = [
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
 ],
-[ // 5: the mill on its hill. rooftops, then the ravine.
+[ // 5: the mill on its hill. rooftops, a skyway over the ravine.
   E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+'......ccc.'+E10,
+  E10+'......===.'+E10,
+  E10+E10+E10,
   E10+'....z.....'+E10,
   '.......cc.'+'.====.....'+E10,
   '......===='+E10+E10,
@@ -513,20 +521,24 @@ const SEGS = [
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
 ],
-[ // 7: the horde campfire, in a hollow arena. wave fight, fire-steel.
+[ // 7: the horde campfire, in a hollow arena. dive perches over the wave.
   E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
   E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10,
+  '........cc'+E10+'..cc......',
+  '........=='+'=.........'+'.===......',
   '.........c'+'....c.....'+E10,
   '.......L..'+'.L....H..z'+'...L......',
   '#####.....'+'..##.f...#'+'#....#####',
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
 ],
-[ // 8: the stair to the warm shrine. gauntlet on the steps.
+[ // 8: the stair to the warm shrine. gauntlet on the steps, perch above.
   E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+'...ccc....',
+  E10+E10+'...===....',
+  E10+E10+E10,
   E10+'.......L..'+'S.........',
   E10+'..B..#####'+'##########',
   '......L.cc'+'##########'+'##########',
@@ -592,6 +604,9 @@ const HINTS = [
   {x: 140, y: 400, txt: '← →  MOVE'},
   {x: 19.2 * TS, y: 360, txt: 'SPACE — JUMP'},
   {x: 21.8 * TS, y: 330, txt: 'X — SWORD'},
+  {x: 41 * TS, y: 330, txt: 'HOLD JUMP + X — RISING STRIKE'},
+  {x: 63 * TS, y: 300, txt: '↓ + X IN AIR — PLUNGE'},
+  {x: 186 * TS, y: 340, txt: 'PLUNGE BOUNCES OFF FOES'},
 ];
 
 function makeEnemy(sp){
@@ -617,7 +632,8 @@ function resetLevel(fromCheckpoint){
   const at = (fromCheckpoint && lit) ? {x: lit.x, y: lit.y - 40} : spawnPt;
   player = {x: at.x, y: at.y, w: 22, h: 58, vx: 0, vy: 0, dir: 1,
     onGround: false, coyote: 0, jumpBuf: 0, hp: maxHearts, inv: 0,
-    atk: 0, atkCd: 0, cast: 0, animT: 0, dead: false, deadT: 0, ceremony: 0, hitDone: {}};
+    atk: 0, atkCd: 0, cast: 0, animT: 0, dead: false, deadT: 0, ceremony: 0, hitDone: {},
+    plunge: false, atkUp: false, prevVy: 0};
   cam.x = Math.max(0, Math.min(player.x - VW * 0.35, LW * TS - VW));
   timeScale = 1; hitstop = 0;
 }
@@ -732,7 +748,11 @@ function hurtEnemy(e, dmg, crit, fromX){
   chain = (frame - lastKillF < 90) ? chain + 1 : 1;
   lastKillF = frame; bestChain = Math.max(bestChain, chain);
   const basePts = e.kind === 'L' ? 20 : e.kind === 'H' ? 30 : 60;
-  const pts = basePts * (crit ? 2 : 1);
+  let pts = basePts * (crit ? 2 : 1);
+  if (player && !player.onGround && !player.dead){
+    pts = Math.round(pts * 1.5);
+    popup(e.x + e.w / 2, e.y - 54, 'AERIAL!', '#8ae2ff');
+  }
   xp += pts;
   hitstop = crit ? 9 : 4;
   AU.kill(chain - 1); if (crit) AU.crit();
@@ -752,6 +772,7 @@ function hurtEnemy(e, dmg, crit, fromX){
 function swordBox(){
   const p = player;
   if (p.atk < 4 || p.atk > 11) return null;
+  if (p.atkUp) return {x: p.x - 8, y: p.y - 30, w: p.w + 16, h: 40};
   return {x: p.dir > 0 ? p.x + p.w - 2 : p.x - 34, y: p.y + 8, w: 36, h: 26};
 }
 function hurtPlayer(fromX, dmg){
@@ -811,7 +832,16 @@ function updatePlayer(){
   if (p.atkCd > 0) p.atkCd--;
   if (p.atk > 0) p.atk--;
   if (p.cast > 0) p.cast--;
-  if (keys.atkHit && p.atkCd === 0 && p.cast === 0){ p.atk = 14; p.atkCd = 20; p.hitDone = {}; AU.slash(); }
+  if (keys.atkHit && p.atkCd === 0 && p.cast === 0){
+    if (!p.onGround && keys.down && !p.plunge){        // PLUNGING STRIKE: blade-down dive, pogo off foes
+      p.plunge = true; p.hitDone = {}; AU.slash();
+    } else if (!p.plunge){
+      p.atk = 14; p.atkCd = 20; p.hitDone = {}; AU.slash();
+      p.atkUp = p.onGround && keys.jump;               // RISING STRIKE: leap with an upward cut
+      if (p.atkUp){ p.vy = -8.5; p.coyote = 0; burst(p.x + 11, p.y + p.h, '#8a7a5c', 3, 3); }
+    }
+  }
+  if (p.atk === 0) p.atkUp = false;
   // fireball (Act II+; engine-ready)
   if (keys.castHit && hasCoal && p.cast === 0 && p.atk === 0 && p.onGround){
     if (embers > 0){
@@ -824,10 +854,19 @@ function updatePlayer(){
     AU.fireball(); shake(1);
   }
   p.vy = Math.min(p.vy + 0.55, 13);
+  if (p.plunge){
+    p.vy = Math.min(p.vy + 1.0, 12);
+    p.vx *= 0.92;
+    if (p.vy > 0 && p.prevVy <= 0) p.hitDone = {};     // new dive after a pogo bounce: fresh targets
+  }
+  p.prevVy = p.vy;
   moveX(p, p.vx);
   const wasAir = !p.onGround;
   p.onGround = moveY(p, p.vy) === 'floor';
-  if (p.onGround && wasAir && p.vy >= 0) burst(p.x + 11, p.y + p.h, '#8a7a5c', 3, 3);
+  if (p.onGround && wasAir && p.vy >= 0){
+    burst(p.x + 11, p.y + p.h, '#8a7a5c', p.plunge ? 8 : 3, p.plunge ? 4 : 3);
+    if (p.plunge){ p.plunge = false; AU.noise(0.08, 0.1, 350); }
+  }
   if (p.inv > 0) p.inv--;
   if (p.redFlash > 0) p.redFlash--;
   p.animT += Math.abs(p.vx) * 0.055 + 0.02;
@@ -924,6 +963,19 @@ function updateEnemies(){
     }
     if (e.flashW > 0) e.flashW--;
     if (p.dead || transform) continue;
+    // plunging strike: bounce off the kill, higher than a jump
+    if (p.plunge && p.vy > 0){
+      const pb = {x: p.x - 4, y: p.y + p.h - 8, w: p.w + 8, h: 30};
+      if (!p.hitDone['p' + enemies.indexOf(e)] && overlap(pb, e)){
+        p.hitDone['p' + enemies.indexOf(e)] = true;
+        const crit = rollCrit(e.kind === 'B');
+        bankHit();
+        hurtEnemy(e, crit ? 2 : 1, crit, p.x + p.w / 2);
+        p.vy = -10.8;
+        if (!keys.down) p.plunge = false;               // release ↓ to dismount the pogo
+        continue;
+      }
+    }
     // sword
     if (sb && !p.hitDone['e' + enemies.indexOf(e)] && overlap(sb, e)){
       p.hitDone['e' + enemies.indexOf(e)] = true;
@@ -1428,7 +1480,8 @@ function drawPlayer(){
   const p = player;
   if (p.inv > 0 && !p.dead && (p.inv / 4 | 0) % 2) return;
   let pose = 'idle';
-  if (p.atk > 0 || p.cast > 0) pose = 'slash';
+  if (p.plunge) pose = 'jump';
+  else if (p.atk > 0 || p.cast > 0) pose = 'slash';
   else if (!p.onGround) pose = 'jump';
   else if (Math.abs(p.vx) > 0.4) pose = (p.animT / 0.55 | 0) % 2 ? 'run1' : 'run2';
   let img = spr('hero', pose, stage);
@@ -1446,13 +1499,22 @@ function drawPlayer(){
     return;
   }
   drawSprite(img, dx, dy, p.dir < 0);
-  // slash arc flash
+  // slash arc flash (front, up for the riser)
   if (p.atk > 8 && p.atk < 13){
     ctx.strokeStyle = 'rgba(255,245,220,.85)'; ctx.lineWidth = 3;
     ctx.beginPath();
-    const ax = p.dir > 0 ? p.x + p.w + 16 - cam.x : p.x - 16 - cam.x;
-    ctx.arc(ax, p.y + 20, 22, p.dir > 0 ? -1.2 : Math.PI - 0.4, p.dir > 0 ? 0.4 : Math.PI + 1.2);
+    if (p.atkUp) ctx.arc(cx, p.y + 2, 26, Math.PI * 1.15, Math.PI * 1.85);
+    else {
+      const ax = p.dir > 0 ? p.x + p.w + 16 - cam.x : p.x - 16 - cam.x;
+      ctx.arc(ax, p.y + 20, 22, p.dir > 0 ? -1.2 : Math.PI - 0.4, p.dir > 0 ? 0.4 : Math.PI + 1.2);
+    }
     ctx.stroke();
+  }
+  // plunge: Brand held point-down beneath him
+  if (p.plunge){
+    ctx.fillStyle = '#e8dcc2'; ctx.fillRect(cx - 2, p.y + p.h - 8, 3, 26);
+    ctx.fillStyle = '#a08a5c'; ctx.fillRect(cx + 1, p.y + p.h - 8, 2, 26);
+    ctx.fillStyle = '#c2762e'; ctx.fillRect(cx - 7, p.y + p.h - 10, 13, 3);
   }
   // lantern ceremony: he lifts it to the flame, holds, lowers it -- still dark
   if (p.ceremony > 0){
@@ -1596,7 +1658,7 @@ function titleScreen(){
   ornament(VW / 2, 288 + bob, 460, '#8a6a3a');
   drawSprite(spr('hero', 'idle', 0), VW / 2 - 38, 330 + Math.sin(frame * 0.07) * 4, false);
   if ((frame / 32 | 0) % 2) text('PRESS ENTER TO KEEP THE FLAME', VW / 2, 452, 22, '#f3ead6');
-  text('ARROWS / WASD move     Z / SPACE jump     X / J sword', VW / 2, 492, 14, '#a89878');
+  text('ARROWS move    SPACE jump    X sword    ↓+X in air plunge    JUMP+X rising strike', VW / 2, 492, 14, '#a89878');
   text('M music     P pause' + (best.grade ? '     BEST GRADE ' + best.grade : ''), VW / 2, 514, 14, '#a89878');
 }
 function drawCard(){
