@@ -1,26 +1,20 @@
-# ⚔️ Emberwood Quest
+# 🔥 EMBERWARD
 
-*A tale of the fallen kingdom* — a nostalgic, fantasy side-scroller that runs
-in a single HTML file. No build step, no dependencies, no assets to download.
-Just open it and play.
+*A Tale of Caldermark* — a gritty retro side-scroller in a single HTML file.
+No build step, no dependencies, no assets. Open it and play.
 
-![Title screen](screenshots/title.png)
+> When Caldermark's own Hearth-Warden stopped tending the King's Coal and let it
+> feed on him, the fire that had warmed a kingdom walked out its gates and ate it.
+> One knight survived, hearthless, with an empty lantern and a sword named Brand.
+
+![Title](screenshots/title.png)
 
 ## Play
 
-Open `index.html` in any modern browser. That's it.
+Open `index.html` in any modern browser, or serve it:
 
 ```
-open index.html        # macOS
-xdg-open index.html    # Linux
-start index.html       # Windows
-```
-
-Or serve it (avoids any local-file quirks):
-
-```
-python3 -m http.server 8000
-# then visit http://localhost:8000
+python3 -m http.server 8000   # then visit http://localhost:8000
 ```
 
 ## Controls
@@ -28,38 +22,45 @@ python3 -m http.server 8000
 | Action | Keys |
 |--------|------|
 | Move   | ← → or A / D |
-| Jump   | ↑ / W / Space / Z (hold for higher jumps) |
+| Jump   | ↑ / W / Space / Z (hold for height) |
 | Sword  | X / J / K |
-| Start / restart | Enter |
-| Pause  | P |
-| Music on/off | M |
+| Hurl fire | C / L *(once Brand banks the heat — Act II)* |
+| Start  | Enter · Pause P · Music M |
 
-Touch controls appear automatically on mobile.
+Touch controls appear on mobile.
 
-## The quest
+## Act I — The Ash Harvest
 
-Fight your way through 8 hand-built screens of the Emberwood — meadows, stone
-towers, spike alleys, a bone arena, and a final ascent to the castle gates.
+March east through razed Caldermark: the farmhouse with the meal still on the
+table, the burned scarecrow pointing the way, the dead orchard, the mill still
+turning with one sail aflame. Eight screens, ending at a shrine where one stone
+is still warm.
 
-![Gameplay](screenshots/gameplay.png)
+![The Ash Harvest](screenshots/field.png)
 
-- 🪙 **49 coins** and 💎 **3 gems** to collect
-- 🟢 Slimes, 🦇 bats, and 💀 skeletons — stomp them Mario-style or cut them down with your sword
-- ⚑ **Checkpoints** so death doesn't send you all the way back
-- ❤️ 3 hearts, 3 lives, and one hidden heart pickup high above the ascent
-- 🏰 Reach the castle gates to save the kingdom (bonus points for leftover lives)
+- **The horde:** Bone Levies (fodder), Ash Hounds (they charge — jump or cut),
+  Iron Brigands (three hits; bait the telegraphed axe and punish)
+- **The Blade Catches:** find the soldier's fire-steel and one strike in twenty
+  turns your foe to ash
+- **Tending:** checkpoints are torches you light — `TENDED.` refills everything
+- **Kill chains** (DOUBLE! TRIPLE! RAMPAGE!), corpse-launch kill pops, hitstop,
+  and a quiet HUD: ember-diamond hearts, three coals in the lantern, XP
+- **SPARK:** enough XP and the hero visibly transforms — slow-mo, converging
+  embers, a shockwave — first stage of Spark → Kindled → Ablaze
+- **Grade card** at the act's end: time, the fallen, coals spent, best chain → D–S
 
-![Castle](screenshots/castle.png)
+Acts II (The Cold Hearth) and III (The Hungry Light) — with the Warden's Coal,
+fireballs from the blade, Ember Cultists, Cinder Wraiths, and Selwyn the Warm —
+are speced in [STORYBOARD.md](STORYBOARD.md) and coming next.
 
 ## Under the hood
 
-Everything is hand-rolled in vanilla JS on a `<canvas>`:
-
-- **Pixel-art sprites** defined as string grids and scaled up (crisp `image-rendering: pixelated`)
-- **Tile-based level** authored as ASCII maps — edit the `SEGS` array in `index.html` to build your own screens
-- **Proper platformer feel**: coyote time, jump buffering, variable jump height, one-way platforms
-- **WebAudio chiptune**: a looping A-minor melody plus bleepy sound effects, all synthesized — zero audio files
-- **Parallax dusk sky** with drifting clouds, twinkling stars, and a distant castle silhouette
-- CRT scanline overlay for maximum nostalgia
-
-Best score is saved to `localStorage`.
+- Vanilla JS on one `<canvas>`, fixed 60fps timestep
+- **Procedural pixel sprites**: painted shaded regions, auto-outlined, dither
+  textured — the hero has 5 poses × 4 transformation stages, all generated
+- Game-feel per a design consult: 4-frame hitstop, 9 on crits, weighted crit odds
+  with a pity timer, particle and shake budgets, corpse physics
+- WebAudio synth for everything: somber D-minor loop, crit ring-outs, chain
+  pitch escalation
+- The story is told in set dressing — look closely at the shrines' lantern
+  brackets
