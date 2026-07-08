@@ -98,7 +98,9 @@ function tinted(img, color){ // white/black silhouette for flashes
 const PAL = {W:'#e8dcc2', w:'#a08a5c', O:'#160d08', '1':'#2e2417', '2':'#5a4526', '3':'#8a6d3a', '4':'#c2a05c',
   r:'#4a1a12', R:'#7a2e1c', Q:'#a04428', l:'#2a1c10', L:'#443019', M:'#5f4526',
   g:'#c2762e', G:'#c2762e', X:'#c96a2e', s:'#7a5a44', S:'#a67c5c'};
-const BONE = {O:'#160d08', '4':'#c9b89a', '3':'#a89878', '2':'#5a4526', M:'#5f4526', L:'#443019', X:'#ffb347', W:'#e8dcc2', w:'#a08a5c', G:'#c2762e'};
+const BONE = {O:'#160d08', '4':'#c9b89a', '3':'#a89878', '2':'#5a4526', M:'#5f4526', L:'#443019', X:'#6e2416', W:'#e8dcc2', w:'#a08a5c', G:'#c2762e'};
+// enemy palette: eye-slits stay DARK -- only the hero, Selwyn, and kept fires glow
+const ENPAL = {...PAL, X:'#6e2416'};
 // stage palettes: the visor/glow char X brightens; ember cracks use 'E'
 const STAGE_PAL = [
   {...PAL, X:'#b05a24', E:'#b05a24'},                    // unawakened: dim flicker
@@ -290,10 +292,10 @@ function spr(kind, a, b){
   if (CACHE[key]) return CACHE[key];
   let img;
   if (kind === 'hero') img = px(STAGE_PAL[b], buildHero(a, b), 2);
-  else if (kind === 'hound') img = px(PAL, buildHound(a), 2);
+  else if (kind === 'hound') img = px(ENPAL, buildHound(a), 2);
   else if (kind === 'levy') img = px(BONE, buildLevy(a), 2);
-  else if (kind === 'brigand') img = px(PAL, buildBrigand(a), 2);
-  else if (kind === 'wraith') img = px(PAL, buildWraith(a), 2);
+  else if (kind === 'brigand') img = px(ENPAL, buildBrigand(a), 2);
+  else if (kind === 'wraith') img = px(ENPAL, buildWraith(a), 2);
   CACHE[key] = img;
   CACHE[key + '|white'] = tinted(img, '#ffffff');
   CACHE[key + '|ash'] = tinted(img, '#241a12');
@@ -434,23 +436,24 @@ if ('ontouchstart' in window){
 
 //======================================================================
 // ACT I -- THE ASH HARVEST (8 screens x 30 cols, 17 rows)
-// '#' earth  '=' platform/roof  'P' start  '*' checkpoint
+// '#' earth  '=' platform/roof  'P' start  '*' checkpoint  'z' secret brazier
 // 'c' coin  'e' heart-ember  'f' fire-steel  'S' hearthstone
 // 'L' bone levy  'H' ash hound  'B' iron brigand
 //======================================================================
 const E10 = '..........';
 const SEGS = [
-[ // 1: the farmhouse. tutorial walk + beam hop, first torch.
+[ // 1: the farmhouse. tutorial walk, beam hop, first torch on the hill.
   E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
   E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  '...P......'+E10+E10,
-  E10+E10+'#.....*...',
+  E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+'.......*.z',
+  '...P......'+E10+'..L....###',
+  '.........c'+'cccc......'+'#....#####',
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
 ],
-[ // 2: the scarecrow. bone levies.
+[ // 2: the scarecrow. levies on the low road off the hill.
   E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
   E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
   E10+E10+E10,
@@ -458,76 +461,76 @@ const SEGS = [
   E10+E10+E10,
   E10+'..=====...'+E10,
   '......c.c.'+E10+E10,
-  E10+'L.........'+'L.........',
+  '##........'+'L.........'+'L....L....',
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
 ],
-[ // 3: the dead orchard. hound intro, treetop coins.
+[ // 3: the dead orchard. rolling humps, treetop coins, hound run.
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+'...cc.....'+E10,
+  '.....cc...'+'..====....'+E10,
+  '....====..'+E10+E10,
+  E10+E10+E10,
+  '........L.'+E10+E10,
+  '......####'+'....L.####'+'..H.......',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+],
+[ // 4: the well, sunk in a hollow. ambush in the bowl.
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+'....e.....',
+  '......c...'+'....c.....'+E10,
+  '#####...L.'+'.H....L...'+'##########',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+],
+[ // 5: the mill on its hill. rooftops, then the ravine.
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+'....z.....'+E10,
+  '.......cc.'+'.====.....'+E10,
+  '......===='+E10+E10,
+  E10+E10+E10,
+  '.........L'+'.....cc...'+E10,
+  '........##'+'####.==...'+E10,
+  '....######'+'####......'+'.L...H....',
+  '##########'+'####....##'+'##########',
+  '##########'+'####....##'+'##########',
+  '##########'+'####....##'+'##########',
+],
+[ // 6: the refugee cart. terrace, brigand, checkpoint.
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  '.........L'+'.......cc.'+E10,
+  '........##'+'##...B....'+'.....*....',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+],
+[ // 7: the horde campfire, in a hollow arena. wave fight, fire-steel.
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  '.........c'+'....c.....'+E10,
+  '.......L..'+'.L....H..z'+'...L......',
+  '#####.....'+'..##.f...#'+'#....#####',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+],
+[ // 8: the stair to the warm shrine. gauntlet on the steps.
   E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
   E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
   E10+E10+E10, E10+E10+E10,
-  '.....ccc..'+'..ccc.....'+E10,
-  '....=====.'+'.=====....'+E10,
-  E10+E10+E10,
-  E10+E10+'..H.......',
-  '##########'+'##########'+'##########',
-  '##########'+'##########'+'##########',
-  '##########'+'##########'+'##########',
-],
-[ // 4: the well. mixed fight, first heart-ember.
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10,
-  E10+E10+'.....e....',
-  E10+'L.......L.'+'..H.......',
-  '##########'+'##########'+'##########',
-  '##########'+'##########'+'##########',
-  '##########'+'##########'+'##########',
-],
-[ // 5: the mill. rooftop platforming, wraith tease overhead.
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+'.cc.......'+E10,
-  E10+'====......'+E10,
-  '.....cc...'+'.........c'+'c.........',
-  '....====..'+'........=='+'==........',
-  E10+E10+E10,
-  E10+E10+E10,
-  '##########'+'##########'+'##########',
-  '##########'+'##########'+'##########',
-  '##########'+'##########'+'##########',
-],
-[ // 6: the refugee cart. brigand blocks the road. checkpoint.
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10,
-  '....c.c...'+E10+E10,
-  E10+'.....B....'+'.....*....',
-  '##########'+'##########'+'##########',
-  '##########'+'##########'+'##########',
-  '##########'+'##########'+'##########',
-],
-[ // 7: the horde campfire. wave fight, the fire-steel.
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10,
-  E10+'.....f....'+E10,
-  '.....L....'+'L.........'+'H....L....',
-  '##########'+'##########'+'##########',
-  '##########'+'##########'+'##########',
-  '##########'+'##########'+'##########',
-],
-[ // 8: the warm shrine. gauntlet, hearthstone, SPARK.
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10, E10+E10+E10, E10+E10+E10,
-  E10+E10+E10,
-  E10+E10+'..S.......',
-  '.....L....'+'..B.....L.'+E10,
+  E10+'.......L..'+'S.........',
+  E10+'..B..#####'+'##########',
+  '......L.cc'+'##########'+'##########',
+  '.....#####'+'##########'+'##########',
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
@@ -540,9 +543,11 @@ const GY = 14 * TS; // ground surface
 
 // set dressing, keyed to the beat sheet
 const DECOR = [
-  {t:'farmhouse', c:6}, {t:'scarecrow', c:36}, {t:'tree', c:62}, {t:'shrine', c:69},
-  {t:'tree', c:76}, {t:'tree', c:85}, {t:'well', c:95}, {t:'mill', c:135},
-  {t:'cart', c:155}, {t:'shrine', c:172}, {t:'firepit', c:195}, {t:'shrine2', c:218},
+  {t:'fence', c:11}, {t:'farmhouse', c:5}, {t:'scarecrow', c:36}, {t:'fence', c:45},
+  {t:'tree', c:63}, {t:'shrine', c:70}, {t:'tree', c:78}, {t:'tree', c:86},
+  {t:'well', c:102}, {t:'fence', c:114}, {t:'mill', c:129}, {t:'fence', c:147},
+  {t:'cart', c:154}, {t:'shrine', c:171}, {t:'fence', c:176}, {t:'firepit', c:194},
+  {t:'fence', c:206}, {t:'shrine2', c:231},
 ];
 
 //======================================================================
@@ -564,20 +569,33 @@ let hasCoal = false, hasSteel = false, maxHearts = 3, maxEmbers = 3, embers = 0,
 let critPity = 0, critSuppress = 0;
 let chain = 0, lastKillF = -999, bestChain = 0;
 let grade = null, best = {};
+let secrets = 0, firstCoin = false, loreSeen = {};
+let cardQueue = [];
 try { best = JSON.parse(localStorage.getItem('emberward') || '{}'); } catch (e) {}
 
-const enemySpawns = [], itemSpawns = [];
+const enemySpawns = [], itemSpawns = [], braziers = [];
 for (let y = 0; y < LH; y++) for (let x = 0; x < LW; x++){
   const ch = grid[y][x], wx = x * TS, wy = y * TS;
-  if ('cefSLHBP*'.includes(ch)) grid[y][x] = '.';
+  if ('cefSLHBP*z'.includes(ch)) grid[y][x] = '.';
   if (ch === 'P') spawnPt = {x: wx + 5, y: wy - 30};
   else if (ch === '*') checkpoints.push({x: wx, y: wy, lit: false});
+  else if (ch === 'z') braziers.push({x: wx, y: wy, lit: false});
   else if ('cefS'.includes(ch)) itemSpawns.push({x: wx, y: wy, kind: ch});
   else if ('LHB'.includes(ch)) enemySpawns.push({x: wx, y: wy, kind: ch});
 }
+function surfaceY(col){
+  for (let r = 0; r < LH; r++) if (grid[r] && grid[r][col] === '#') return r * TS;
+  return GY;
+}
+// diegetic signpost hints (onboarding)
+const HINTS = [
+  {x: 140, y: 400, txt: '← →  MOVE'},
+  {x: 19.2 * TS, y: 360, txt: 'SPACE — JUMP'},
+  {x: 21.8 * TS, y: 330, txt: 'X — SWORD'},
+];
 
 function makeEnemy(sp){
-  if (sp.kind === 'L') return {kind:'L', x:sp.x + 4, y:sp.y, w:24, h:56, vx:-0.9, vy:0, dir:-1, hp:1, t:0, flinch:0, dead:false};
+  if (sp.kind === 'L') return {kind:'L', x:sp.x + 4, y:sp.y, w:24, h:56, vx:-0.9, vy:0, dir:-1, hp:1, t:0, flinch:0, st:'patrol', stT:0, dead:false};
   if (sp.kind === 'H') return {kind:'H', x:sp.x + 2, y:sp.y + 16, w:40, h:28, vx:-0.8, vy:0, dir:-1, hp:1, t:0, flinch:0, st:'patrol', stT:0, dead:false};
   return {kind:'B', x:sp.x + 2, y:sp.y, w:30, h:60, vx:-0.5, vy:0, dir:-1, hp:3, t:0, flinch:0, st:'walk', stT:0, dead:false};
 }
@@ -591,6 +609,8 @@ function resetLevel(fromCheckpoint){
     xp = 0; coins = 0; lives = 3; killCount = 0; deaths = 0; playTime = 0;
     stage = 0; hasCoal = false; hasSteel = false; maxHearts = 3; embers = 0; hitsBanked = 0;
     critPity = 0; critSuppress = 0; bestChain = 0; grade = null; transform = null;
+    secrets = 0; firstCoin = false; loreSeen = {}; cardQueue = [];
+    braziers.forEach(b => b.lit = false);
     killTotal = enemySpawns.length;
   }
   const lit = [...checkpoints].reverse().find(c => c.lit);
@@ -703,6 +723,12 @@ function hurtEnemy(e, dmg, crit, fromX){
   }
   // kill
   e.dead = true; killCount++;
+  if (!loreSeen[e.kind]){                     // bestiary line, first kill of each kind
+    loreSeen[e.kind] = true;
+    toast(e.kind === 'L' ? 'The kingdom’s levy still musters.'
+        : e.kind === 'H' ? 'The dogs stayed. The fire kept them.'
+        : 'Sellswords, paid in dead men’s coin.');
+  }
   chain = (frame - lastKillF < 90) ? chain + 1 : 1;
   lastKillF = frame; bestChain = Math.max(bestChain, chain);
   const basePts = e.kind === 'L' ? 20 : e.kind === 'H' ? 30 : 60;
@@ -817,6 +843,16 @@ function updatePlayer(){
     AU.tended(); toast('TENDED.');
     burst(c.x + 16, c.y + 8, '#ffb347', 10, 2, 0.02);
   }
+  // secret braziers: strike them alight
+  const sb2 = swordBox();
+  if (sb2) for (const b of braziers){
+    if (!b.lit && overlap(sb2, {x: b.x - 4, y: b.y - 6, w: 40, h: 44})){
+      b.lit = true; secrets++; xp += 25;
+      AU.tended(); toast('A hidden brazier burns again.');
+      burst(b.x + 16, b.y + 8, '#ffb347', 12, 3, 0.02);
+      popup(b.x + 16, b.y - 12, 'SECRET  ' + secrets + '/' + braziers.length, '#8ae2ff', true);
+    }
+  }
   // act end
   if (p.x > 238 * TS && state === 'play'){
     state = 'grade'; computeGrade(); AU.stamp(); saveBest();
@@ -831,7 +867,21 @@ function updateEnemies(){
     else if (e.kind === 'L'){
       e.vy = Math.min(e.vy + 0.55, 13);
       const onG = moveY(e, e.vy) === 'floor';
-      if (moveX(e, e.vx) || (onG && !groundAhead(e))){ e.dir *= -1; e.vx = Math.abs(e.vx) * e.dir; }
+      e.stT++;
+      if (e.st === 'patrol'){
+        if (moveX(e, e.vx) || (onG && !groundAhead(e))){ e.dir *= -1; e.vx = Math.abs(e.vx) * e.dir; }
+        const dx = p.x - e.x;
+        if (!p.dead && Math.abs(dx) < 70 && Math.sign(dx) === e.dir && Math.abs((p.y + p.h) - (e.y + e.h)) < 40){
+          e.st = 'poise'; e.stT = 0; e.vx = 0;              // telegraph: pause and blink
+        }
+      } else if (e.st === 'poise'){
+        if (e.stT > 16){ e.st = 'lunge'; e.stT = 0; e.dir = p.x > e.x ? 1 : -1; AU.noise(0.05, 0.06, 800); }
+      } else if (e.st === 'lunge'){
+        moveX(e, 2.4 * e.dir);
+        if (e.stT > 14 || (onG && !groundAhead(e))){ e.st = 'cool'; e.stT = 0; }
+      } else { // cool
+        if (e.stT > 30){ e.st = 'patrol'; e.vx = 0.9 * e.dir; }
+      }
     } else if (e.kind === 'H'){
       e.vy = Math.min(e.vy + 0.55, 13);
       const onG = moveY(e, e.vy) === 'floor';
@@ -917,7 +967,10 @@ function updateItems(){
     const box = {x: it.x + 4, y: it.y + 2 + Math.sin(it.t) * 3, w: 24, h: 26};
     if (!p.dead && overlap(p, box)){
       it.taken = true;
-      if (it.kind === 'c'){ coins++; xp += 5; AU.coin(); burst(it.x + 16, it.y + 14, '#c8a05c', 5, 2.5); }
+      if (it.kind === 'c'){
+        coins++; xp += 5; AU.coin(); burst(it.x + 16, it.y + 14, '#c8a05c', 5, 2.5);
+        if (!firstCoin){ firstCoin = true; toast('A dead man’s coin. Carry it home.'); }
+      }
       else if (it.kind === 'e'){
         if (p.hp < maxHearts){ p.hp++; }
         toast('An ember. It warms what it can.');
@@ -925,13 +978,19 @@ function updateItems(){
       }
       else if (it.kind === 'f'){
         hasSteel = true;
-        toast('A soldier’s fire-steel. Struck true.');
         AU.bigPickup(); burst(it.x + 16, it.y + 14, '#ffd75e', 12, 3);
+        card = {title: 'THE SOLDIER’S FIRE-STEEL', icon: 'f',
+          lines: ['A soldier’s fire-steel. Struck true.', 'One strike in twenty will catch.'],
+          t: 0, dur: 240, next: 'play'};
+        state = 'card';
       }
       else if (it.kind === 'S'){
         maxHearts = Math.min(5, maxHearts + 1); p.hp = maxHearts;
-        toast('A hearthstone, still warm. Keep it.');
         AU.bigPickup(); burst(it.x + 16, it.y + 14, '#ffb347', 14, 3);
+        card = {title: 'A HEARTHSTONE', icon: 'S',
+          lines: ['A hearthstone, still warm. Keep it.', '+1 HEART OF WARMTH'],
+          t: 0, dur: 240, next: 'play'};
+        state = 'card';
       }
     }
   }
@@ -1007,9 +1066,10 @@ function computeGrade(){
   const killPct = killTotal ? killCount / killTotal : 1;
   let score = 0;
   score += deaths === 0 ? 3 : deaths === 1 ? 2 : deaths === 2 ? 1 : 0;
-  score += secs < 240 ? 2 : secs < 360 ? 1 : 0;
+  score += secs < 260 ? 2 : secs < 400 ? 1 : 0;
   score += killPct >= 0.9 ? 2 : killPct >= 0.6 ? 1 : 0;
   score += bestChain >= 3 ? 1 : 0;
+  score += secrets >= braziers.length ? 1 : 0;
   grade = {letter: score >= 8 ? 'S' : score >= 6 ? 'A' : score >= 4 ? 'B' : score >= 2 ? 'C' : 'D',
     secs, killPct, t: 0};
 }
@@ -1035,7 +1095,7 @@ function drawSky(){
     ctx.fillRect((hash(i, 7) * VW * 2 - cam.x * 0.04 + VW * 4) % VW, hash(i, 13) * VH * 0.4, 2, 2);
   }
   ctx.globalAlpha = 1;
-  const mx = VW * 0.7 - (cam.x * 0.01) % 50, my = VH * 0.6, mr = 62;
+  const mx = VW * 0.7 - cam.x * 0.012, my = VH * 0.6, mr = 62;
   ctx.fillStyle = 'rgba(255,207,122,.16)'; ctx.beginPath(); ctx.arc(mx, my, mr * 1.9, 0, 7); ctx.fill();
   ctx.fillStyle = '#ffcf7a'; ctx.beginPath(); ctx.arc(mx, my, mr, 0, 7); ctx.fill();
   ctx.fillStyle = 'rgba(212,118,58,.5)';
@@ -1064,29 +1124,55 @@ function deadTree(x, base, h, color, sd){
     ctx.restore();
   }
 }
+function drawRuin(sx, base, color, sd){ // broken castle silhouette
+  ctx.fillStyle = color;
+  const h1 = 90 + hash(sd, 1) * 40, h2 = 60 + hash(sd, 2) * 30;
+  ctx.fillRect(sx, base - h1, 22, h1);                       // standing tower
+  for (let i = 0; i < 3; i++) ctx.fillRect(sx + i * 8, base - h1 - 8, 5, 8);
+  ctx.beginPath();                                           // sheared tower
+  ctx.moveTo(sx + 58, base); ctx.lineTo(sx + 58, base - h2);
+  ctx.lineTo(sx + 66, base - h2 - 18); ctx.lineTo(sx + 74, base - h2 + 6);
+  ctx.lineTo(sx + 80, base); ctx.fill();
+  ctx.fillRect(sx + 20, base - 34, 40, 34);                  // broken wall
+  ctx.beginPath();
+  ctx.moveTo(sx + 34, base - 34); ctx.lineTo(sx + 40, base - 48); ctx.lineTo(sx + 47, base - 34); ctx.fill();
+  ctx.fillStyle = 'rgba(12,6,4,.55)';
+  ctx.fillRect(sx + 7, base - h1 + 12, 8, 12);               // dark window
+}
 function drawParallax(){
-  ridge(0.15, VH * 0.72, 80, 0.0023, 50, 0.006, '#241210');
-  // smoke columns on the horizon
-  for (let i = 0; i < 4; i++){
-    const sx = ((900 + i * 1700) * 0.15 - cam.x * 0.15 % (VW + 300) + VW + 300) % (VW + 300) - 150;
+  ridge(0.18, VH * 0.72, 80, 0.0023, 50, 0.006, '#241210');
+  // world-anchored ruined keeps on the far ridge
+  for (const wx of [900, 5400, 10200]){
+    const sx = wx * 0.18 - cam.x * 0.18 + 200;
+    if (sx > -140 && sx < VW + 60) drawRuin(sx, VH * 0.62 + Math.sin(wx) * 8, '#241210', wx);
+  }
+  // world-anchored smoke columns
+  for (const [i, wx] of [700, 3400, 6200, 9000].entries()){
+    const sx = wx * 0.25 - cam.x * 0.25 + 60;
+    if (sx < -80 || sx > VW + 80) continue;
     ctx.fillStyle = 'rgba(60,45,40,.5)';
     for (let s = 0; s < 8; s++){
       const w = 8 + s * 3.5, y = VH * 0.55 - s * 24;
       ctx.fillRect(sx + Math.sin(frame * 0.005 + s + i) * 8 - w / 2, y, w, 24);
     }
   }
-  ridge(0.35, VH * 0.84, 54, 0.004, 30, 0.01, '#331a12');
+  ridge(0.4, VH * 0.84, 54, 0.004, 30, 0.01, '#2c160f');
   const span = 260;
   for (let i = -1; i < VW / span + 2; i++){
-    const wx = (Math.floor((cam.x * 0.35) / span) + i) * span;
+    const wx = (Math.floor((cam.x * 0.4) / span) + i) * span;
     const sd = Math.floor(wx / span);
-    deadTree(wx - cam.x * 0.35 + hash(sd, 21) * 120, VH * 0.84 - 6, 60 + hash(sd, 5) * 70, '#331a12', sd);
+    deadTree(wx - cam.x * 0.4 + hash(sd, 21) * 120, VH * 0.84 - 6, 60 + hash(sd, 5) * 70, '#2c160f', sd);
   }
-  ridge(0.6, VH * 0.99, 40, 0.008, 22, 0.017, '#42221a');
+  // a ruined watchtower closer in, mid layer
+  for (const wx of [3200, 7600]){
+    const sx = wx * 0.4 - cam.x * 0.4 - 500;
+    if (sx > -140 && sx < VW + 60) drawRuin(sx, VH * 0.84, '#2c160f', wx + 3);
+  }
+  ridge(0.68, VH * 0.99, 40, 0.008, 22, 0.017, '#3c1e15');
   for (let i = -1; i < VW / span + 2; i++){
-    const wx = (Math.floor((cam.x * 0.6) / span) + i) * span + 130;
+    const wx = (Math.floor((cam.x * 0.68) / span) + i) * span + 130;
     const sd = Math.floor(wx / span) + 50;
-    deadTree(wx - cam.x * 0.6 + hash(sd, 21) * 100, VH * 0.99 - 6, 80 + hash(sd, 5) * 80, '#42221a', sd);
+    deadTree(wx - cam.x * 0.68 + hash(sd, 21) * 100, VH * 0.99 - 6, 80 + hash(sd, 5) * 80, '#3c1e15', sd);
   }
   // fog
   for (let i = 0; i < 3; i++){
@@ -1121,10 +1207,17 @@ function drawTiles(){
         ctx.fillRect(sx + (hash(tx, 1) * 22 | 0), sy - 4, 2, 4);
         ctx.fillRect(sx + 8 + (hash(tx, 2) * 18 | 0), sy - 3, 2, 3);
         if (hash(tx, 5) > 0.6) ctx.fillRect(sx + 18 + (hash(tx, 6) * 8 | 0), sy - 5, 3, 5);
+        // charred wheat stubble on the farm road (west half of the act)
+        if (tx < 120 && hash(tx, 11) > 0.45){
+          ctx.fillStyle = '#241812';
+          ctx.fillRect(sx + 4 + (hash(tx, 12) * 20 | 0), sy - 7, 2, 7);
+          ctx.fillRect(sx + 12 + (hash(tx, 13) * 14 | 0), sy - 5, 2, 5);
+        }
       }
     } else if (t === '='){
+      ctx.fillStyle = 'rgba(12,6,4,.4)'; ctx.fillRect(sx, sy + 12, TS, 4);  // drop shadow: reads as foreground
       ctx.fillStyle = '#54402a'; ctx.fillRect(sx, sy, TS, 12);
-      ctx.fillStyle = '#6b5433'; ctx.fillRect(sx, sy, TS, 4);
+      ctx.fillStyle = '#8a6a3a'; ctx.fillRect(sx, sy, TS, 4);
       ctx.fillStyle = '#2a1c10'; ctx.fillRect(sx + 2, sy + 8, 3, 3); ctx.fillRect(sx + TS - 6, sy + 8, 3, 3);
     }
   }
@@ -1145,8 +1238,16 @@ function drawDecor(){
   for (const d of DECOR){
     const sx = d.c * TS - cam.x;
     if (sx < -300 || sx > VW + 300) continue;
-    const g = GY;
-    if (d.t === 'farmhouse'){
+    const g = surfaceY(d.c);
+    if (d.t === 'fence'){
+      ctx.fillStyle = '#241812';
+      for (let i = 0; i < 4; i++){
+        const fh = 18 + (hash(d.c, i) * 8 | 0);
+        if (hash(d.c, i + 4) > 0.25) ctx.fillRect(sx + i * 22, g - fh, 4, fh);   // some posts burned away
+      }
+      ctx.fillRect(sx, g - 14, 68, 3);
+      if (hash(d.c, 9) > 0.4) ctx.fillRect(sx + 22, g - 22, 46, 3);              // broken top rail
+    } else if (d.t === 'farmhouse'){
       ctx.fillStyle = '#2e2015'; ctx.fillRect(sx, g - 110, 150, 110);
       ctx.fillStyle = '#241812';
       ctx.beginPath(); ctx.moveTo(sx - 12, g - 110); ctx.lineTo(sx + 75, g - 152); ctx.lineTo(sx + 162, g - 110); ctx.fill();
@@ -1155,6 +1256,8 @@ function drawDecor(){
       ctx.fillRect(sx + 58, g - 62, 4, 10); ctx.fillRect(sx + 90, g - 62, 4, 10);
       ctx.fillStyle = '#54402a'; ctx.fillRect(sx + 64, g - 70, 7, 4); ctx.fillRect(sx + 78, g - 70, 7, 4);
       ctx.fillStyle = '#241812'; ctx.fillRect(sx + 108, g - 80, 26, 22);      // dark window
+      ctx.fillStyle = '#8c3040'; ctx.fillRect(sx + 46, g - 6, 6, 6);          // a small carved toy on the doorstep
+      ctx.fillStyle = '#a03a28'; ctx.fillRect(sx + 48, g - 9, 2, 3);
     } else if (d.t === 'scarecrow'){
       ctx.fillStyle = '#241812'; ctx.fillRect(sx, g - 84, 6, 84);
       ctx.fillRect(sx - 24, g - 66, 30, 5);
@@ -1215,6 +1318,24 @@ function drawDecor(){
       ctx.fillStyle = '#443019'; ctx.fillRect(sx + 20, g - 10, 5, 8); ctx.fillRect(sx + 36, g - 9, 4, 7);
     }
   }
+  // secret braziers
+  for (const b of braziers){
+    const sx = b.x - cam.x + 16;
+    if (sx < -60 || sx > VW + 60) continue;
+    ctx.fillStyle = '#241812'; ctx.fillRect(sx - 2, b.y + 12, 5, 20);
+    ctx.fillStyle = '#160d08';
+    ctx.beginPath(); ctx.ellipse(sx, b.y + 12, 10, 5, 0, Math.PI, 0); ctx.fill();
+    if (b.lit) flame(sx, b.y + 4, 7, b.x, true);
+    else if ((frame / 40 | 0) % 3 === 0){ ctx.fillStyle = 'rgba(200,160,92,.5)'; ctx.fillRect(sx - 1, b.y + 6, 3, 3); } // faint glint
+  }
+  // diegetic control hints, carved on stakes
+  ctx.globalAlpha = 0.9;
+  for (const h of HINTS){
+    const sx = h.x - cam.x;
+    if (sx < -120 || sx > VW + 120) continue;
+    text(h.txt, sx, h.y, 14, '#c8b490');
+  }
+  ctx.globalAlpha = 1;
   // wraith tease over the mill (seg 5)
   if (cam.x > 118 * TS && cam.x < 152 * TS){
     const wx = 120 * TS + ((frame * 0.9) % (34 * TS)) - cam.x;
@@ -1279,9 +1400,10 @@ function drawEnemies(){
     if (a.x < -120 || a.x > VW + 120) continue;
     if (e.flashW > 0) img = e.kind === 'L' ? sprWhite('levy', (e.t / 12 | 0) % 2) : e.kind === 'H' ? sprWhite('hound', 0) : sprWhite('brigand', 'walk1');
     drawSprite(img, a.x, a.y, e.dir < 0);
-    if (e.kind === 'B' && e.st === 'raise' && (e.stT / 4 | 0) % 2){ // telegraph blink
-      ctx.fillStyle = 'rgba(255,180,80,.5)';
-      ctx.fillRect(a.x + (e.dir > 0 ? img.width - 8 : 2), a.y - 4, 6, 6);
+    if (((e.kind === 'B' && e.st === 'raise') || (e.kind === 'L' && e.st === 'poise') || (e.kind === 'H' && e.st === 'windup'))
+        && (e.stT / 4 | 0) % 2){ // telegraph blink
+      ctx.fillStyle = 'rgba(255,180,80,.6)';
+      ctx.fillRect(a.x + (e.dir > 0 ? img.width - 8 : 2), a.y - 6, 6, 6);
     }
   }
   for (const c of corpses){
@@ -1332,18 +1454,22 @@ function drawPlayer(){
     ctx.arc(ax, p.y + 20, 22, p.dir > 0 ? -1.2 : Math.PI - 0.4, p.dir > 0 ? 0.4 : Math.PI + 1.2);
     ctx.stroke();
   }
-  // lantern lift ceremony
-  if (p.ceremony > 10){
+  // lantern ceremony: he lifts it to the flame, holds, lowers it -- still dark
+  if (p.ceremony > 0){
+    const c = p.ceremony;
+    const lift = c > 34 ? (50 - c) / 16 : c > 16 ? 1 : c / 16;   // up, hold, down
+    const ly = p.y + 26 - lift * 24;
     ctx.fillStyle = '#160d08';
-    ctx.fillRect(cx + p.dir * 14, p.y + 4, 8, 10);
+    ctx.fillRect(cx + p.dir * (10 + lift * 8), ly, 8, 10);
     ctx.fillStyle = '#443019';
-    ctx.fillRect(cx + p.dir * 14 + 2, p.y + 1, 4, 3);
+    ctx.fillRect(cx + p.dir * (10 + lift * 8) + 2, ly - 3, 4, 3);
   }
-  // visor cast-light at Ablaze
-  if (stage >= 3){
-    const g = ctx.createRadialGradient(cx + p.dir * 8, p.y + 12, 4, cx + p.dir * 8, p.y + 12, 60);
-    g.addColorStop(0, 'rgba(255,190,110,.14)'); g.addColorStop(1, 'rgba(255,190,110,0)');
-    ctx.fillStyle = g; ctx.fillRect(cx - 60, p.y - 48, 128, 128);
+  // the visor casts light as the inner fire grows
+  if (stage >= 1){
+    const rr = 24 + stage * 16;
+    const g = ctx.createRadialGradient(cx + p.dir * 8, p.y + 12, 3, cx + p.dir * 8, p.y + 12, rr);
+    g.addColorStop(0, 'rgba(255,190,110,' + (0.05 + stage * 0.035) + ')'); g.addColorStop(1, 'rgba(255,190,110,0)');
+    ctx.fillStyle = g; ctx.fillRect(cx - rr - 10, p.y + 12 - rr, rr * 2 + 20, rr * 2);
   }
   // transformation shockwave ring
   if (transform && transform.wave){
@@ -1374,6 +1500,11 @@ function text(str, x, y, size, color, align){
   ctx.fillText(str, x, y);
 }
 function drawHUD(){
+  // backing plate so the cluster pops off the sky
+  ctx.fillStyle = 'rgba(12,6,4,.42)';
+  ctx.fillRect(8, 6, 118 + maxHearts * 14, 118);
+  ctx.strokeStyle = 'rgba(138,106,58,.5)'; ctx.lineWidth = 1;
+  ctx.strokeRect(8.5, 6.5, 117 + maxHearts * 14, 117);
   // hearts: ember-diamonds
   for (let i = 0; i < maxHearts; i++){
     const hx = 26 + i * 25, hy = 24;
@@ -1404,6 +1535,14 @@ function drawHUD(){
   ctx.fillStyle = '#c8a05c'; ctx.beginPath(); ctx.ellipse(46, 113, 6, 7, 0, 0, 7); ctx.fill();
   const secs = playTime / 60 | 0;
   text((secs / 60 | 0) + ':' + ('0' + secs % 60).slice(-2), VW - 20, 28, 15, '#c8b490', 'right');
+  // last-heart tension: the world holds its breath
+  if (player.hp === 1 && !player.dead){
+    const pulse = 0.05 + 0.04 * Math.sin(frame * 0.09);
+    ctx.fillStyle = 'rgba(160,58,40,' + pulse + ')';
+    ctx.fillRect(0, 0, VW, VH);
+    if (frame % 72 === 0){ AU.tone(52, 48, 0.1, 'sine', 0.16); AU.tone(52, 46, 0.09, 'sine', 0.13, AU.ctx && AU.ctx.currentTime + 0.18); }
+    if (AU.mGain) AU.mGain.gain.value = 0.05;
+  } else if (AU.mGain && AU.mGain.gain.value !== 0.14) AU.mGain.gain.value = 0.14;
   // toasts
   toasts.forEach((tt, i) => {
     ctx.globalAlpha = tt.t < 20 ? tt.t / 20 : tt.t > 120 ? Math.max(0, (150 - tt.t) / 30) : 1;
@@ -1430,6 +1569,9 @@ function drawWorld(){
   }
   drawPlayer(); drawFx();
   ctx.restore();
+  if (transform && transform.t >= 65 && transform.t < 68){   // the moment the ember takes
+    ctx.fillStyle = 'rgba(255,240,210,.55)'; ctx.fillRect(0, 0, VW, VH);
+  }
   vignette();
 }
 
@@ -1467,7 +1609,8 @@ function drawCard(){
   card.lines.forEach((l, i) => text(l, VW / 2, VH / 2 + i * 34 - (card.title ? 0 : 20), 21, '#e8d9b0'));
   ctx.globalAlpha = 1;
   if (card.t > card.dur || (card.t > 40 && keys.startHit)){
-    state = card.next; card = null;
+    if (cardQueue.length){ card = cardQueue.shift(); }
+    else { state = card.next; card = null; }
   }
 }
 function gradeScreen(){
@@ -1475,12 +1618,13 @@ function gradeScreen(){
   grade.t++;
   ctx.fillStyle = 'rgba(12,6,4,.7)'; ctx.fillRect(0, 0, VW, VH);
   ornament(VW / 2, 108, 480, '#8a6a3a');
-  text('ACT I CLEAR — THE ASH HARVEST', VW / 2, 156, 28, '#e8b23a');
+  text('ACT I CLEAR — THE ASH HARVEST', VW / 2, 148, 28, '#e8b23a');
+  text('HOW BRIGHTLY DID YOU BURN?', VW / 2, 178, 15, '#c8956a');
   const secs = grade.secs | 0;
-  text('TIME  ' + (secs / 60 | 0) + ':' + ('0' + secs % 60).slice(-2), VW / 2, 214, 19, '#e8d9b0');
-  text('THE FALLEN  ' + killCount + ' / ' + killTotal, VW / 2, 246, 19, '#e8d9b0');
-  text('COALS SPENT  ' + deaths + '      BEST CHAIN  ' + bestChain, VW / 2, 278, 19, '#e8d9b0');
-  text('XP  ' + xp, VW / 2, 310, 19, '#c8a05c');
+  text('TIME  ' + (secs / 60 | 0) + ':' + ('0' + secs % 60).slice(-2), VW / 2, 216, 19, '#e8d9b0');
+  text('THE FALLEN  ' + killCount + ' / ' + killTotal, VW / 2, 248, 19, '#e8d9b0');
+  text('COALS SPENT  ' + deaths + '      BEST CHAIN  ' + bestChain, VW / 2, 280, 19, '#e8d9b0');
+  text('BRAZIERS  ' + secrets + ' / ' + braziers.length + '      XP  ' + xp, VW / 2, 312, 19, '#c8a05c');
   if (grade.t > 40){
     const gs = grade.t < 48 ? 3 - (grade.t - 40) * 0.25 : 1;
     if (grade.t === 48){ shake(4); }
@@ -1524,7 +1668,13 @@ function frameStep(){
     titleScreen();
     if (keys.startHit){
       resetLevel(false);
-      card = {title: 'ACT I — THE ASH HARVEST', lines: ['The wind carried it east.', 'So he walked east.'], t: 0, dur: 260, next: 'play'};
+      // the premise, told to the player -- then the act card
+      card = {lines: ['The King’s Coal warmed all Caldermark.', 'Its Warden was sworn to tend it.'], t: 0, dur: 220, next: 'play'};
+      cardQueue = [
+        {lines: ['He stopped. It fed on him instead.', 'Then it fed on the kingdom.'], t: 0, dur: 220, next: 'play'},
+        {lines: ['One knight lived. His lantern, empty.', 'He marches east to take back the fire.'], t: 0, dur: 220, next: 'play'},
+        {title: 'ACT I — THE ASH HARVEST', lines: ['The wind carried it east.', 'So he walked east.'], t: 0, dur: 240, next: 'play'},
+      ];
       state = 'card';
     }
   } else if (state === 'card'){

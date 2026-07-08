@@ -45,7 +45,14 @@ One knight survived, hearthless, with an empty lantern and a sword named Brand.
 He marches east through the ash to take back the stolen coal — and decide, at the
 gate of the man it hollowed, whether it should ever be lit again.
 
-Title screen press line: `PRESS START TO KEEP THE FLAME`
+Title screen press line: `PRESS ENTER TO KEEP THE FLAME`
+
+**The premise crawl** (3 cards after START, before Act I — the game tells its own
+premise instead of leaving it to the README):
+
+> `The King's Coal warmed all Caldermark.` / `Its Warden was sworn to tend it.`
+> `He stopped. It fed on him instead.` / `Then it fed on the kingdom.`
+> `One knight lived. His lantern, empty.` / `He marches east to take back the fire.`
 
 ## THE TWIST — The Denied Succession
 
@@ -68,8 +75,11 @@ tragedy — it was never filled.** Not revenge: *inheritance withheld.*
   Players notice by the third checkpoint. Nothing is explained.
 - **Act II-5, the Cold Hearth (reveal).** Beside the great hearth: the Warden's iron
   mantle in the ash — and a kneeling-stone with a lantern cradle. The hero's lantern
-  clicks in perfectly. One card:
+  clicks in perfectly. Two cards, poetry then plain fact (the only place the
+  mechanism is stated — review flagged that the twist's causal fact must reach
+  the player somewhere):
   `The lantern fits the cradle.` / `It was never filled.`
+  `A Warden fills his heir's lantern.` / `Selwyn never let his watch end.`
   Then the Warden's Coal — the succession finally happens, wrong way round: by
   salvage, not rite, and into the *sword*, not the lantern.
 - **Act III (recontextualize).** Cultist graffiti: soot-paintings of lanterns crossed
@@ -184,9 +194,9 @@ they refill hearts context and Embers. Coins are dead men's coins, tallied into 
 | 3 | Armory racks stripped bare but for one child-sized helm | Brigands in a tight corridor; collapsing-floor trap |
 | 4 | Spiral stair; arrow-slit light shafts full of ember-drift | Vertical climb, Wraiths diving through the shafts; mid-climb checkpoint |
 | 5 | **THE COLD HEARTH** — arena-sized dead hearth; the Warden's iron mantle in the ash; a kneeling-stone with a lantern cradle | Silent screen, no enemies. Lantern-cradle card (the twist reveal), then **Warden's Coal** — Brand ignites; fireball tutorial on unlit braziers |
-| 6 | Hearth-sigils painted inverted in soot — cultist graffiti | **Ember Cultist** intro lobbing fire from ledges; fireball is the counter-tool |
+| 6 | Hearth-sigils painted inverted in soot — cultist graffiti | **Ember Cultist** intro lobbing fire from ledges; fireball is the counter-tool. First cultist kill toast: `They tithe to a nameless warmth.` |
 | 7 | Throne room; the throne alone untouched and dustless | Trap gauntlet — swinging censers, spike pits — into an ambush wave |
-| 8 | Broken east wall framing the war camp's glow on the horizon | Long descent, mixed gauntlet; **KINDLED** transformation; checkpoint |
+| 8 | Broken east wall framing the war camp's glow — and on a distant rampart in that glow, one small ember-lit silhouette. Selwyn, seen once, far off | Long descent, mixed gauntlet; **KINDLED** transformation; checkpoint |
 
 ## ACT III — THE HUNGRY LIGHT
 
@@ -225,8 +235,16 @@ where he stood. Darkest screen in the game.
 
 ## Epilogue (playable, silent)
 
-At the dead great hearth, coal in hand. Walk to the hearth and press attack to
-kindle — or walk off-screen to refuse. No prompt.
+At the dead great hearth, coal in hand. As the hero approaches, he instinctively
+begins the lantern-lift gesture he has performed at every checkpoint — then stops
+himself mid-motion, lantern raised, awaiting input. That one held frame is the
+tell that this moment is a decision. Press attack to kindle — or walk off-screen
+to refuse. No prompt, no menu.
+
+**Act III checkpoint idle**: the familiar lantern-lift gains a half-second
+hesitation before he does it — fire feels different here. (The mechanical hinge
+of the Act III inversion, taught through the animation the player has seen 15+
+times.)
 
 - **KINDLE:** `The great hearth of Caldermark burned.` / `Tended, this time.`
 - **REFUSE:** `He left the coal to the cold.` / `No fire outlives its keeper twice.`
@@ -284,8 +302,14 @@ transformation → kill chains → grade cards.
 - **Ash Hound** — *The farm dogs stayed by the burned homes. The fire kept them.*
 - **Bone Levy** — *The kingdom's levy still musters. For the other side.*
 - **Iron Brigand** — *Sellswords paid in dead men's coin. They will be paid again.*
-- **Cinder Wraith** — *What rises with the smoke does not settle with the ash.*
+- **Cinder Wraith** — *It rose as smoke and never came down.*
 - **Ember Cultist** — *They tithe their flesh to the one they call Unquenched. He had a name once.*
+
+## The toy (human-scale thread)
+
+A small carved crimson toy appears three times, no text ever: on the farmhouse
+doorstep in I-1, among the spilled toys at the refugee cart in I-6, and in the
+horde's tithe-pile in III-3. Whether the farm was *his* home is never said.
 
 ## Motif checklist (visual rules for the build)
 
