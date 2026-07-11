@@ -1608,53 +1608,157 @@ function saveBest(){
 //======================================================================
 // DRAWING -- the Ash Harvest
 //======================================================================
+function cloudBand(y, n, drift, seed, dark, rim){
+  // ragged deck of cloud, underside lit from below -- the sky remembers the fires.
+  // slabs are spaced to overlap, with occasional torn gaps, so the band reads
+  // as one long strip instead of floating pancakes
+  const spanW = VW + 420;
+  for (let i = 0; i < n; i++){
+    if (hash(seed + 5, i) > 0.87) continue;                    // a tear in the deck
+    const w = 130 + hash(seed, i) * 130, h = 7 + hash(seed + 1, i) * 9;
+    const x = (((i / n) * spanW + hash(seed + 2, i) * 90 - frame * drift - cam.x * 0.03) % spanW + spanW) % spanW - 210;
+    const yy = y + hash(seed + 3, i) * 18 - 9;
+    ctx.fillStyle = rim;
+    ctx.beginPath(); ctx.ellipse(x, yy + h * 0.45, w * 0.9, h, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = dark;
+    ctx.beginPath(); ctx.ellipse(x, yy, w, h, 0, 0, 7); ctx.fill();
+  }
+}
 function drawSky(){
-  if (ACTS[act].look === 'cold'){ // Act II: the dead castle under a bone moon
+  if (ACTS[act].look === 'cold'){ // ACT II: dead-cold night; the world's edge still burns
     const g = ctx.createLinearGradient(0, 0, 0, VH);
-    g.addColorStop(0, '#05070d'); g.addColorStop(0.5, '#0c1220');
-    g.addColorStop(0.85, '#16203a'); g.addColorStop(1, '#1e2c4a');
+    g.addColorStop(0, '#04060b'); g.addColorStop(0.5, '#0b101d');
+    g.addColorStop(0.85, '#141d33'); g.addColorStop(1, '#1b2842');
     ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
     ctx.fillStyle = 'rgba(220,230,255,.7)';
-    for (let i = 0; i < 60; i++){
-      ctx.globalAlpha = 0.2 + hash(i, 3) * 0.6;
-      ctx.fillRect((hash(i, 7) * VW * 2 - cam.x * 0.04 + VW * 4) % VW, hash(i, 13) * VH * 0.6, 2, 2);
+    for (let i = 0; i < 70; i++){
+      ctx.globalAlpha = (0.15 + hash(i, 3) * 0.6) * (0.6 + 0.4 * Math.sin(frame * 0.01 + i * 5));
+      ctx.fillRect((hash(i, 7) * VW * 2 - cam.x * 0.04 + VW * 4) % VW, hash(i, 13) * VH * 0.62, 2, 2);
     }
     ctx.globalAlpha = 1;
-    const mx = VW * 0.32 - cam.x * 0.012, my = VH * 0.28, mr = 46;
+    // a cold aurora, thin and wrong -- the sky itself is sick
+    for (let b = 0; b < 2; b++){
+      ctx.fillStyle = b ? 'rgba(96,168,150,.028)' : 'rgba(120,150,190,.032)';
+      ctx.beginPath();
+      for (let x = 0; x <= VW; x += 24){
+        const y = VH * (0.06 + b * 0.07) + Math.sin(x * 0.006 + frame * 0.003 + b * 2) * 22 + Math.sin(x * 0.0017 - frame * 0.0011) * 34;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      for (let x = VW; x >= 0; x -= 24){
+        const y = VH * (0.06 + b * 0.07) + Math.sin(x * 0.006 + frame * 0.003 + b * 2) * 22 + Math.sin(x * 0.0017 - frame * 0.0011) * 34;
+        ctx.lineTo(x, y + 24 + b * 12);
+      }
+      ctx.fill();
+    }
+    // bone moon, with cloud shreds dragging across it
+    const mx = VW * 0.32 - cam.x * 0.012, my = VH * 0.26, mr = 50;
     ctx.fillStyle = 'rgba(200,214,240,.12)'; ctx.beginPath(); ctx.arc(mx, my, mr * 2, 0, 7); ctx.fill();
     ctx.fillStyle = '#c8d2e8'; ctx.beginPath(); ctx.arc(mx, my, mr, 0, 7); ctx.fill();
     ctx.fillStyle = '#a8b4cc';
-    ctx.beginPath(); ctx.arc(mx - 12, my - 8, 8, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(mx - 12, my - 8, 9, 0, 7); ctx.fill();
     ctx.beginPath(); ctx.arc(mx + 14, my + 12, 5, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(6,9,16,.5)';
+    for (let i = 0; i < 4; i++){
+      const cw = 60 + hash(9, i) * 80;
+      const x = ((hash(4, i) * (VW + 300) + frame * (0.12 + i * 0.04)) % (VW + 300)) - 150;
+      ctx.beginPath(); ctx.ellipse(x, my - 34 + i * 22, cw, 5 + i * 2, 0, 0, 7); ctx.fill();
+    }
+    // eastward, low: the war camp eating the horizon. it grows as you walk to it
+    const p = Math.min(1, cam.x / (LW * TS - VW));
+    const eg = ctx.createRadialGradient(VW + 60, VH * 0.78, 20, VW + 60, VH * 0.78, VW * (0.5 + p * 0.45));
+    eg.addColorStop(0, 'rgba(216,84,30,' + (0.10 + p * 0.22) + ')');
+    eg.addColorStop(1, 'rgba(216,84,30,0)');
+    ctx.fillStyle = eg; ctx.fillRect(0, 0, VW, VH);
     return;
   }
+  // ACT I: the end of days at dusk. the sky is a wound
   const g = ctx.createLinearGradient(0, 0, 0, VH);
-  g.addColorStop(0, '#1a0f0e'); g.addColorStop(0.42, '#4a1f14');
-  g.addColorStop(0.72, '#8a3d1e'); g.addColorStop(1, '#d4763a');
+  g.addColorStop(0, '#0d0605'); g.addColorStop(0.4, '#3d1410');
+  g.addColorStop(0.72, '#7a2a14'); g.addColorStop(1, '#c45e28');
   ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
   ctx.fillStyle = 'rgba(255,255,255,.5)';
-  for (let i = 0; i < 34; i++){
-    ctx.globalAlpha = 0.25 + hash(i, 1) * 0.5;
-    ctx.fillRect((hash(i, 7) * VW * 2 - cam.x * 0.04 + VW * 4) % VW, hash(i, 13) * VH * 0.4, 2, 2);
+  for (let i = 0; i < 20; i++){
+    ctx.globalAlpha = 0.2 + hash(i, 1) * 0.4;
+    ctx.fillRect((hash(i, 7) * VW * 2 - cam.x * 0.04 + VW * 4) % VW, hash(i, 13) * VH * 0.24, 2, 2);
   }
   ctx.globalAlpha = 1;
-  const mx = VW * 0.7 - cam.x * 0.012, my = VH * 0.6, mr = 62;
-  ctx.fillStyle = 'rgba(255,207,122,.16)'; ctx.beginPath(); ctx.arc(mx, my, mr * 1.9, 0, 7); ctx.fill();
-  ctx.fillStyle = '#ffcf7a'; ctx.beginPath(); ctx.arc(mx, my, mr, 0, 7); ctx.fill();
-  ctx.fillStyle = 'rgba(212,118,58,.5)';
-  ctx.fillRect(mx - mr - 14, my - 6, mr * 2 + 28, 4);
-  ctx.fillRect(mx - mr - 6, my + 8, mr * 2 + 12, 3);
-  ctx.fillRect(mx - mr - 20, my - 18, mr * 2 + 40, 3);
-}
-function ridge(par, base, amp1, f1, amp2, f2, color){
-  ctx.fillStyle = color;
-  ctx.beginPath(); ctx.moveTo(0, VH);
-  for (let sx = 0; sx <= VW; sx += 8){
-    const wx = sx + cam.x * par;
-    const y = base - Math.abs(Math.sin(wx * f1)) * amp1 - Math.abs(Math.sin(wx * f2 + 2)) * amp2;
-    ctx.lineTo(sx, y);
+  // the swollen sun, low and sullen, choked by smoke bands
+  const mx = VW * 0.68 - cam.x * 0.012, my = VH * 0.62, mr = 84;
+  ctx.fillStyle = 'rgba(255,150,60,.13)'; ctx.beginPath(); ctx.arc(mx, my, mr * 2.1, 0, 7); ctx.fill();
+  ctx.fillStyle = '#f0a24e'; ctx.beginPath(); ctx.arc(mx, my, mr, 0, 7); ctx.fill();
+  ctx.fillStyle = '#ffd27e'; ctx.beginPath(); ctx.arc(mx - mr * 0.18, my - mr * 0.2, mr * 0.62, 0, 7); ctx.fill();
+  for (let i = 0; i < 4; i++){ // smoke dragged across the disc
+    const bw = mr * (2.0 + hash(3, i) * 1.4), bh = 5 + hash(5, i) * 8;
+    const bx = mx + Math.sin(frame * 0.0012 + i * 2.2) * 30 - 10;
+    ctx.fillStyle = 'rgba(26,10,7,' + (0.45 + hash(7, i) * 0.25) + ')';
+    ctx.beginPath(); ctx.ellipse(bx, my - mr * 0.55 + i * mr * 0.38, bw / 2, bh, 0, 0, 7); ctx.fill();
   }
+  // cloud decks lit from beneath by a burning kingdom
+  cloudBand(VH * 0.10, 7, 0.10, 21, '#150806', 'rgba(190,74,30,.30)');
+  cloudBand(VH * 0.24, 8, 0.16, 34, '#180a07', 'rgba(214,92,36,.26)');
+  cloudBand(VH * 0.38, 7, 0.24, 47, '#1c0c08', 'rgba(230,110,44,.20)');
+  // carrion birds wheeling over what's left
+  ctx.strokeStyle = 'rgba(16,7,5,.8)'; ctx.lineWidth = 2;
+  for (let i = 0; i < 6; i++){
+    const bx = ((hash(i, 51) * (VW + 300) + frame * (0.2 + hash(i, 3) * 0.25) - cam.x * 0.05) % (VW + 300) + VW + 300) % (VW + 300) - 150;
+    const by = VH * (0.16 + hash(i, 57) * 0.3) + Math.sin(frame * 0.017 + i * 2.4) * 16;
+    const fl = Math.sin(frame * 0.14 + i * 1.9) * 3;
+    ctx.beginPath();
+    ctx.moveTo(bx - 4, by + fl); ctx.lineTo(bx, by); ctx.lineTo(bx + 4, by + fl);
+    ctx.stroke();
+  }
+  // the horizon itself smolders
+  const hb = ctx.createLinearGradient(0, VH * 0.58, 0, VH * 0.74);
+  hb.addColorStop(0, 'rgba(255,120,40,0)');
+  hb.addColorStop(1, 'rgba(255,130,44,' + (0.10 + Math.sin(frame * 0.013) * 0.03) + ')');
+  ctx.fillStyle = hb; ctx.fillRect(0, VH * 0.58, VW, VH * 0.16);
+}
+//----------------------------------------------------------------------
+// TERRAIN -- sampleable ridges. every silhouette PLANTS into the slope:
+// its base is the lowest ridge point beneath its span, plus a bury margin.
+//----------------------------------------------------------------------
+const RIDGES = {
+  ember: [
+    {par:0.18, base:VH*0.72, a1:80, f1:0.0023, a2:50, f2:0.006, col:'#221110'},
+    {par:0.40, base:VH*0.84, a1:54, f1:0.004,  a2:30, f2:0.01,  col:'#2a150e'},
+    {par:0.68, base:VH*0.99, a1:40, f1:0.008,  a2:22, f2:0.017, col:'#391d14'},
+  ],
+  cold: [
+    {par:0.18, base:VH*0.70, a1:70, f1:0.0023, a2:40, f2:0.006, col:'#0c1120'},
+    {par:0.40, base:VH*0.83, a1:46, f1:0.004,  a2:26, f2:0.01,  col:'#131a2e'},
+    {par:0.68, base:VH*0.99, a1:36, f1:0.008,  a2:20, f2:0.017, col:'#1b2438'},
+  ],
+};
+const rY = (L, px) => L.base - Math.abs(Math.sin(px * L.f1)) * L.a1 - Math.abs(Math.sin(px * L.f2 + 2)) * L.a2;
+function groundAt(L, px, w){
+  let g = 0;
+  for (let i = 0; i <= 4; i++) g = Math.max(g, rY(L, px + w * i / 4));
+  return g + 5;
+}
+function drawRidgeLayer(L){
+  ctx.fillStyle = L.col;
+  ctx.beginPath(); ctx.moveTo(0, VH);
+  for (let sx = 0; sx <= VW; sx += 8) ctx.lineTo(sx, rY(L, sx + cam.x * L.par));
   ctx.lineTo(VW, VH); ctx.fill();
+}
+// distant wildfire: ragged, fast, hungry -- never the tended kind
+function distantBurn(x, y, sd, scale){
+  const fl = 0.75 + hash(sd, frame >> 2) * 0.5;
+  const gl = ctx.createRadialGradient(x, y, 2, x, y, 26 * scale * fl);
+  gl.addColorStop(0, 'rgba(255,110,40,.30)'); gl.addColorStop(1, 'rgba(255,110,40,0)');
+  ctx.fillStyle = gl; ctx.fillRect(x - 30 * scale, y - 30 * scale, 60 * scale, 60 * scale);
+  ctx.fillStyle = 'rgba(230,90,30,.8)';
+  for (let i = 0; i < 3; i++){
+    const th = (4 + hash(sd + i, frame >> 2) * 9) * scale;
+    ctx.fillRect(x - 4 * scale + i * 3 * scale, y - th, 2 * scale, th);
+  }
+}
+function smokeColumn(sx, sy, i){ // climbs and leans east with the wind
+  ctx.fillStyle = 'rgba(50,32,28,.5)';
+  for (let s = 0; s < 9; s++){
+    const w = 7 + s * 4;
+    ctx.fillRect(sx + s * 4 + Math.sin(frame * 0.006 + s + i) * 7 - w / 2, sy - s * 26 - 26, w, 26);
+  }
 }
 function deadTree(x, base, h, color, sd){
   ctx.fillStyle = color;
@@ -1667,102 +1771,273 @@ function deadTree(x, base, h, color, sd){
     ctx.restore();
   }
 }
-function drawRuin(sx, base, color, sd){ // broken castle silhouette
-  ctx.fillStyle = color;
+//----------------------------------------------------------------------
+// SILHOUETTES -- every painter draws from a planted base `g` upward.
+// FW gives each type's footprint so groundAt can sample its whole span.
+//----------------------------------------------------------------------
+const FW = {windmill:30, barn:48, trees3:70, tower:24, wall:120, keep:84, spire:30, town:100,
+  gatehouse:76, cottage:34, btree:36, fissure:96, aqueduct:96, hovels:78, cathedral:92,
+  towers:70, leaning:56, rubblefield:90, arcade:150, statue:26, banner:14, stump:20, head:36, rubble:60};
+function crenels(x, y, w, c){
+  ctx.fillStyle = c;
+  for (let i = 0; i < w; i += 9) ctx.fillRect(x + i, y - 6, 5, 6);
+}
+function silKeep(x, g, c, sd){
+  ctx.fillStyle = c;
   const h1 = 90 + hash(sd, 1) * 40, h2 = 60 + hash(sd, 2) * 30;
-  ctx.fillRect(sx, base - h1, 22, h1);                       // standing tower
-  for (let i = 0; i < 3; i++) ctx.fillRect(sx + i * 8, base - h1 - 8, 5, 8);
-  ctx.beginPath();                                           // sheared tower
-  ctx.moveTo(sx + 58, base); ctx.lineTo(sx + 58, base - h2);
-  ctx.lineTo(sx + 66, base - h2 - 18); ctx.lineTo(sx + 74, base - h2 + 6);
-  ctx.lineTo(sx + 80, base); ctx.fill();
-  ctx.fillRect(sx + 20, base - 34, 40, 34);                  // broken wall
-  ctx.beginPath();
-  ctx.moveTo(sx + 34, base - 34); ctx.lineTo(sx + 40, base - 48); ctx.lineTo(sx + 47, base - 34); ctx.fill();
+  ctx.fillRect(x, g - h1, 22, h1);
+  for (let i = 0; i < 3; i++) ctx.fillRect(x + i * 8, g - h1 - 8, 5, 8);
+  ctx.beginPath();                                           // sheared twin
+  ctx.moveTo(x + 58, g); ctx.lineTo(x + 58, g - h2);
+  ctx.lineTo(x + 66, g - h2 - 18); ctx.lineTo(x + 74, g - h2 + 6);
+  ctx.lineTo(x + 80, g); ctx.fill();
+  ctx.fillRect(x + 20, g - 34, 44, 34);
   ctx.fillStyle = 'rgba(12,6,4,.55)';
-  ctx.fillRect(sx + 7, base - h1 + 12, 8, 12);               // dark window
+  ctx.fillRect(x + 7, g - h1 + 12, 8, 12);
+  return {tx: x + 11, ty: g - h1};
+}
+function paintFeature(f, sx, L){
+  const w = FW[f.t] || 60, c = L.col;
+  const g = groundAt(L, f.px, w);
+  const sd = f.px | 0;
+  ctx.fillStyle = c;
+  if (f.t === 'windmill'){
+    ctx.beginPath(); ctx.moveTo(sx + 2, g); ctx.lineTo(sx + 8, g - 48); ctx.lineTo(sx + 20, g - 48); ctx.lineTo(sx + 26, g); ctx.fill();
+    ctx.save(); ctx.translate(sx + 14, g - 50);
+    ctx.rotate(0.5);  ctx.fillRect(-1, -30, 3, 30);          // one sail holds
+    ctx.rotate(1.7);  ctx.fillRect(-1, -18, 3, 18);          // one snapped short
+    ctx.restore();
+  } else if (f.t === 'barn'){
+    ctx.beginPath(); ctx.moveTo(sx, g); ctx.lineTo(sx, g - 22); ctx.lineTo(sx + 20, g - 36);
+    ctx.lineTo(sx + 30, g - 29); ctx.lineTo(sx + 48, g - 22); ctx.lineTo(sx + 48, g); ctx.fill(); // roof fallen in at the middle
+  } else if (f.t === 'trees3'){
+    for (let i = 0; i < 3; i++) deadTree(sx + i * 24, g, 26 + hash(sd, i) * 22, c, sd + i);
+  } else if (f.t === 'tower'){
+    const h = 68 + hash(sd, 2) * 26;
+    ctx.fillRect(sx, g - h, 22, h);
+    crenels(sx, g - h, 22, c);
+    ctx.fillStyle = 'rgba(12,6,4,.5)'; ctx.fillRect(sx + 7, g - h + 14, 8, 10);
+    if (f.burn){ distantBurn(sx + 11, g - h - 4, sd, 1); smokeColumn(sx + 11, g - h - 8, sd); }
+  } else if (f.t === 'wall'){
+    ctx.fillRect(sx, g - 26, 46, 26);                        // a breach torn mid-run
+    ctx.fillRect(sx + 66, g - 26, 54, 26);
+    crenels(sx, g - 26, 46, c); crenels(sx + 66, g - 26, 54, c);
+    ctx.beginPath(); ctx.moveTo(sx + 46, g); ctx.lineTo(sx + 46, g - 22); ctx.lineTo(sx + 56, g - 8); ctx.lineTo(sx + 66, g - 24); ctx.lineTo(sx + 66, g); ctx.fill();
+  } else if (f.t === 'keep'){
+    const top = silKeep(sx, g, c, sd);
+    if (f.burn){ distantBurn(top.tx, top.ty - 4, sd, 1.1); smokeColumn(top.tx, top.ty - 8, sd); }
+  } else if (f.t === 'spire'){
+    ctx.fillRect(sx + 4, g - 44, 22, 44);
+    ctx.beginPath(); ctx.moveTo(sx + 4, g - 44); ctx.lineTo(sx + 12, g - 66); ctx.lineTo(sx + 18, g - 58); ctx.lineTo(sx + 26, g - 44); ctx.fill(); // the point is gone
+  } else if (f.t === 'town'){
+    let tx2 = sx;
+    for (let i = 0; i < 5; i++){
+      const hw = 14 + hash(sd, i) * 9, hh = 14 + hash(sd, i + 5) * 12, fell = hash(sd, i + 9) > 0.62;
+      ctx.beginPath(); ctx.moveTo(tx2, g); ctx.lineTo(tx2, g - hh);
+      if (fell){ ctx.lineTo(tx2 + hw * 0.5, g - hh + 4); ctx.lineTo(tx2 + hw, g - hh * 0.55); } // caved gable
+      else ctx.lineTo(tx2 + hw * 0.5, g - hh - 9), ctx.lineTo(tx2 + hw, g - hh);
+      ctx.lineTo(tx2 + hw, g); ctx.fill();
+      tx2 += hw + 4;
+    }
+    if (f.burn){ distantBurn(sx + 40, g - 16, sd, 1.3); smokeColumn(sx + 44, g - 18, sd); }
+  } else if (f.t === 'gatehouse'){
+    ctx.fillRect(sx, g - 84, 20, 84); ctx.fillRect(sx + 56, g - 84, 20, 84);
+    crenels(sx, g - 84, 20, c); crenels(sx + 56, g - 84, 20, c);
+    ctx.fillRect(sx + 16, g - 58, 44, 18);                   // the arch the fire walked out of
+    ctx.beginPath(); ctx.moveTo(sx + 20, g); ctx.lineTo(sx + 20, g - 40);
+    ctx.quadraticCurveTo(sx + 38, g - 56, sx + 56, g - 40); ctx.lineTo(sx + 56, g); ctx.fill();
+    if (f.burn){ distantBurn(sx + 10, g - 88, sd, 1); distantBurn(sx + 66, g - 88, sd + 3, 1); }
+  } else if (f.t === 'cottage'){
+    ctx.beginPath(); ctx.moveTo(sx, g); ctx.lineTo(sx, g - 16); ctx.lineTo(sx + 17, g - 27); ctx.lineTo(sx + 34, g - 16); ctx.lineTo(sx + 34, g); ctx.fill();
+    if (f.burn){ distantBurn(sx + 17, g - 22, sd, 0.9); smokeColumn(sx + 17, g - 24, sd); }
+  } else if (f.t === 'btree'){
+    deadTree(sx, g, 52 + hash(sd, 5) * 40, c, sd);
+  } else if (f.t === 'fissure'){                             // the ground itself split and glows
+    ctx.strokeStyle = 'rgba(255,96,30,' + (0.22 + hash(sd, frame >> 3) * 0.2) + ')';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let t = 0; t <= 96; t += 8){
+      const y = rY(L, f.px + t) + 7 + hash(sd, t) * 6;
+      t ? ctx.lineTo(sx + t, y) : ctx.moveTo(sx + t, y);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(10,4,3,.8)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let t = 0; t <= 96; t += 8){
+      const y = rY(L, f.px + t) + 5 + hash(sd, t) * 6;
+      t ? ctx.lineTo(sx + t, y) : ctx.moveTo(sx + t, y);
+    }
+    ctx.stroke();
+  } else if (f.t === 'aqueduct'){
+    for (let i = 0; i < 3; i++){
+      const ax = sx + i * 34;
+      ctx.fillRect(ax, g - 42, 10, 42);
+    }
+    ctx.fillRect(sx, g - 48, 74, 8);
+    ctx.beginPath(); ctx.moveTo(sx + 74, g - 48); ctx.lineTo(sx + 90, g - 30); ctx.lineTo(sx + 90, g - 24); ctx.lineTo(sx + 74, g - 40); ctx.fill(); // span sheared off
+  } else if (f.t === 'hovels'){
+    for (let i = 0; i < 3; i++){
+      const hx = sx + i * 27, hh = 12 + hash(sd, i) * 8;
+      ctx.beginPath(); ctx.moveTo(hx, g); ctx.lineTo(hx, g - hh); ctx.lineTo(hx + 11, g - hh - 6); ctx.lineTo(hx + 22, g - hh); ctx.lineTo(hx + 22, g); ctx.fill();
+    }
+    if (f.burn){ distantBurn(sx + 30, g - 14, sd, 1); smokeColumn(sx + 34, g - 16, sd); }
+  } else if (f.t === 'cathedral'){
+    ctx.fillRect(sx, g - 58, 54, 58);                        // nave
+    ctx.beginPath(); ctx.moveTo(sx, g - 58); ctx.lineTo(sx + 20, g - 74); ctx.lineTo(sx + 40, g - 62); ctx.lineTo(sx + 54, g - 58); ctx.fill(); // broken roofline
+    ctx.fillRect(sx + 60, g - 96, 24, 96);                   // bell tower
+    crenels(sx + 60, g - 96, 24, c);
+    ctx.fillStyle = '#0b101d';                               // the rose window, punched through to sky
+    ctx.beginPath(); ctx.arc(sx + 27, g - 40, 10, 0, 7); ctx.fill();
+    ctx.fillStyle = c;
+    ctx.fillRect(sx + 25, g - 50, 4, 20); ctx.fillRect(sx + 17, g - 42, 20, 4);
+  } else if (f.t === 'towers'){
+    for (let i = 0; i < 3; i++){
+      const h = 46 + hash(sd, i) * 46, tx2 = sx + i * 24;
+      ctx.fillRect(tx2, g - h, 18, h);
+      if (hash(sd, i + 3) > 0.4) crenels(tx2, g - h, 18, c);
+      if (f.burn && hash(sd, i + 6) > 0.5){                  // fire looks out the windows
+        ctx.fillStyle = 'rgba(240,110,40,' + (0.5 + hash(sd + i, frame >> 3) * 0.4) + ')';
+        ctx.fillRect(tx2 + 6, g - h + 10 + i * 8, 4, 5);
+        ctx.fillStyle = c;
+      }
+    }
+    if (f.burn) smokeColumn(sx + 30, g - 60, sd);
+  } else if (f.t === 'leaning'){
+    ctx.fillRect(sx, g - 74, 18, 74);
+    crenels(sx, g - 74, 18, c);
+    ctx.save(); ctx.translate(sx + 40, g); ctx.rotate(-0.16); // its twin gave up and leaned in
+    ctx.fillRect(-9, -78, 18, 78);
+    ctx.restore();
+  } else if (f.t === 'rubblefield'){
+    for (let i = 0; i < 4; i++){
+      const rx = sx + i * 24, rh = 8 + hash(sd, i) * 14;
+      ctx.beginPath(); ctx.ellipse(rx + 12, g - rh / 2, 15, rh, 0, 0, 7); ctx.fill();
+    }
+    if (f.burn){ distantBurn(sx + 34, g - 12, sd, 1.2); distantBurn(sx + 70, g - 8, sd + 5, 0.8); smokeColumn(sx + 50, g - 14, sd); }
+  } else if (f.t === 'arcade'){                              // interior: an arcade marching into the dark
+    const n = 4, span = 36;
+    ctx.fillRect(sx, g - 64, n * span + 10, 9);              // architrave
+    for (let i = 0; i <= n; i++){
+      const px2 = sx + i * span;
+      ctx.fillRect(px2, g - 58, 10, 58);
+      ctx.beginPath(); ctx.moveTo(px2 + 10, g - 55); ctx.quadraticCurveTo(px2 + 18, g - 42, px2 + 10, g - 30); ctx.lineTo(px2 + 10, g - 55); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(px2 + span, g - 55); ctx.quadraticCurveTo(px2 + span - 8, g - 42, px2 + span, g - 30); ctx.lineTo(px2 + span, g - 55); ctx.fill();
+    }
+    if (hash(sd, 2) > 0.5){                                  // one bay collapsed
+      ctx.fillStyle = '#0b101d';
+      ctx.fillRect(sx + span * (1 + (sd % 2)) + 8, g - 66, span - 6, 14);
+      ctx.fillStyle = c;
+    }
+  } else if (f.t === 'statue'){
+    ctx.fillRect(sx, g - 10, 26, 10);                        // plinth
+    ctx.beginPath(); ctx.moveTo(sx + 6, g - 10); ctx.lineTo(sx + 9, g - 40);
+    ctx.lineTo(sx + 17, g - 40); ctx.lineTo(sx + 20, g - 10); ctx.fill();  // a robed king
+    ctx.fillRect(sx + 10, g - 44, 6, 4);                     // the neck. no head.
+    ctx.beginPath(); ctx.ellipse(sx + 30, g - 4, 6, 4, 0.3, 0, 7); ctx.fill(); // it lies at his feet
+  } else if (f.t === 'banner'){
+    ctx.fillRect(sx, g - 62, 3, 62);
+    ctx.fillStyle = act === 0 ? '#4a1a14' : '#2a2036';       // crimson gone to rust / cold shadow
+    ctx.beginPath();
+    ctx.moveTo(sx + 3, g - 60);
+    for (let t = 0; t <= 30; t += 6) ctx.lineTo(sx + 3 + t, g - 60 + Math.sin(frame * 0.09 - t * 0.24 + sd) * 3 + t * 0.12);
+    for (let t = 30; t >= 0; t -= 6) ctx.lineTo(sx + 3 + t, g - 48 + Math.sin(frame * 0.09 - t * 0.24 + sd + 1) * 3 - t * 0.14);
+    ctx.fill();
+  } else if (f.t === 'stump'){
+    const h = 16 + hash(sd, 1) * 22;
+    ctx.fillRect(sx, g - h, 18, h);
+    ctx.beginPath(); ctx.moveTo(sx, g - h); ctx.lineTo(sx + 7, g - h - 6); ctx.lineTo(sx + 18, g - h); ctx.fill();
+  } else if (f.t === 'head'){                                // a colossus face-down in the ash
+    ctx.beginPath(); ctx.ellipse(sx + 18, g - 9, 18, 12, -0.18, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(8,4,3,.6)';
+    ctx.fillRect(sx + 9, g - 14, 6, 4);                      // one hollow eye
+  } else if (f.t === 'rubble'){
+    for (let i = 0; i < 5; i++){
+      const rx = sx + hash(sd, i) * 44, rh = 5 + hash(sd, i + 7) * 12;
+      ctx.fillRect(rx, g - rh, 8 + hash(i, sd) * 10, rh);
+    }
+  }
+}
+//----------------------------------------------------------------------
+// AUTHORED SKYLINES -- positions are in each layer's parallax space.
+// Act I far ridge: farmland in the west; Caldermark grows out of the
+// horizon as you march, and the act ends beneath its burning gate.
+//----------------------------------------------------------------------
+const F1_FAR = [
+  {px: 40,   t:'windmill'}, {px: 190,  t:'barn'}, {px: 320,  t:'trees3'},
+  {px: 470,  t:'tower', burn:1}, {px: 620,  t:'town'}, {px: 800,  t:'trees3'},
+  {px: 930,  t:'town', burn:1}, {px: 1080, t:'wall'}, {px: 1230, t:'keep'},
+  {px: 1360, t:'spire'}, {px: 1470, t:'town', burn:1}, {px: 1600, t:'wall'},
+  {px: 1720, t:'tower', burn:1}, {px: 1810, t:'keep', burn:1}, {px: 1930, t:'wall'},
+  {px: 2030, t:'tower'}, {px: 2090, t:'gatehouse', burn:1}, {px: 2200, t:'wall'},
+];
+const F1_MID = [
+  {px: 150,  t:'cottage'}, {px: 430,  t:'btree'}, {px: 690,  t:'fissure'},
+  {px: 950,  t:'btree'}, {px: 1210, t:'aqueduct'}, {px: 1500, t:'btree'},
+  {px: 1770, t:'fissure'}, {px: 2020, t:'cottage', burn:1}, {px: 2330, t:'btree'},
+  {px: 2580, t:'aqueduct'}, {px: 2870, t:'fissure'}, {px: 3140, t:'btree'},
+  {px: 3400, t:'cottage'}, {px: 3620, t:'fissure'},
+];
+const F1_NEAR = [];
+for (let k = 0; k < 13; k++){
+  const px = k * 440 + hash(k, 77) * 160;
+  F1_NEAR.push({px, t: k % 3 === 2 ? 'banner' : 'btree'});
+}
+// Act II: the dead city ringing the castle; its east quarter still burns
+const F2_FAR = [
+  {px: 60,   t:'hovels'}, {px: 240,  t:'wall'}, {px: 410,  t:'spire'},
+  {px: 560,  t:'cathedral'}, {px: 760,  t:'towers'}, {px: 950,  t:'wall'},
+  {px: 1110, t:'leaning'}, {px: 1260, t:'towers'}, {px: 1440, t:'hovels', burn:1},
+  {px: 1620, t:'rubblefield', burn:1}, {px: 1810, t:'towers', burn:1}, {px: 1990, t:'rubblefield', burn:1},
+  {px: 2140, t:'wall'},
+];
+const F2_MID = [
+  {px: 140,  t:'arcade'}, {px: 520,  t:'statue'}, {px: 800,  t:'arcade'},
+  {px: 1140, t:'banner'}, {px: 1400, t:'arcade'}, {px: 1740, t:'statue'},
+  {px: 2040, t:'arcade'}, {px: 2380, t:'banner'}, {px: 2640, t:'arcade'},
+  {px: 2950, t:'statue'}, {px: 3240, t:'arcade'}, {px: 3560, t:'banner'},
+];
+const F2_NEAR = [];
+for (let k = 0; k < 13; k++){
+  const px = k * 450 + hash(k, 91) * 170;
+  F2_NEAR.push({px, t: k % 4 === 3 ? 'head' : k % 2 ? 'rubble' : 'stump'});
 }
 function drawParallax(){
-  if (ACTS[act].look === 'cold'){
-    ridge(0.18, VH * 0.70, 70, 0.0023, 40, 0.006, '#0c1120');
-    for (const wx of [1200, 4800, 9400]){
-      const sx = wx * 0.18 - cam.x * 0.18 + 160;
-      if (sx > -140 && sx < VW + 60) drawRuin(sx, VH * 0.6 + Math.sin(wx) * 8, '#0c1120', wx);
+  const cold = ACTS[act].look === 'cold';
+  const Ls = RIDGES[cold ? 'cold' : 'ember'];
+  const feats = cold ? [F2_FAR, F2_MID, F2_NEAR] : [F1_FAR, F1_MID, F1_NEAR];
+  for (let li = 0; li < 3; li++){
+    const L = Ls[li];
+    drawRidgeLayer(L);
+    for (const f of feats[li]){
+      const sx = f.px - cam.x * L.par;
+      if (sx < -280 || sx > VW + 100) continue;
+      paintFeature(f, sx, L);
     }
-    ridge(0.4, VH * 0.83, 46, 0.004, 26, 0.01, '#131a2e');
-    for (const wx of [2200, 6800, 10600]){
-      const sx = wx * 0.4 - cam.x * 0.4 - 400;
-      if (sx > -140 && sx < VW + 60) drawRuin(sx, VH * 0.83, '#131a2e', wx + 3);
-    }
-    ridge(0.68, VH * 0.99, 36, 0.008, 20, 0.017, '#1b2438');
-    const span = 300;                                       // broken pillars, close in
-    for (let i = -1; i < VW / span + 2; i++){
-      const wx = (Math.floor((cam.x * 0.68) / span) + i) * span + 80;
-      const sx = wx - cam.x * 0.68;
-      const ph = VH * (0.34 + hash(Math.floor(wx / span), 4) * 0.14);
-      ctx.fillStyle = '#1b2438';
-      ctx.fillRect(sx, VH - ph, 22, ph);
-      ctx.fillRect(sx - 6, VH - ph, 34, 10);
-    }
-    for (let i = 0; i < 3; i++){                            // cold fog
+  }
+  if (cold){
+    for (let i = 0; i < 3; i++){                             // cold fog
       ctx.fillStyle = 'rgba(90,110,150,' + (0.04 + i * 0.015) + ')';
       const mxx = ((hash(i, 17) * 1800 + frame * (0.1 + i * 0.04) - cam.x * (0.5 + i * 0.1)) % (VW + 500) + VW + 500) % (VW + 500) - 250;
       ctx.beginPath(); ctx.ellipse(mxx, VH - 70 - i * 26, 220 + i * 40, 16, 0, 0, 7); ctx.fill();
     }
-    for (let i = 0; i < 18; i++){                           // ash falls like snow, still blowing east
+    for (let i = 0; i < 18; i++){                            // ash falls like snow, still blowing east
       const ex = ((hash(i, 31) * 3000 + frame * (0.3 + hash(i, 5) * 0.4) - cam.x * 0.8) % (VW + 60) + VW + 60) % (VW + 60) - 30;
       const ey = (hash(i, 37) * VH + frame * (0.4 + hash(i, 11) * 0.5)) % VH;
       ctx.fillStyle = 'rgba(190,200,220,' + (0.15 + hash(i, 8) * 0.3) + ')';
       ctx.fillRect(ex, ey, 2, 2);
     }
-    return;
-  }
-  ridge(0.18, VH * 0.72, 80, 0.0023, 50, 0.006, '#241210');
-  // world-anchored ruined keeps on the far ridge
-  for (const wx of [900, 5400, 10200]){
-    const sx = wx * 0.18 - cam.x * 0.18 + 200;
-    if (sx > -140 && sx < VW + 60) drawRuin(sx, VH * 0.62 + Math.sin(wx) * 8, '#241210', wx);
-  }
-  // world-anchored smoke columns
-  for (const [i, wx] of [700, 3400, 6200, 9000].entries()){
-    const sx = wx * 0.25 - cam.x * 0.25 + 60;
-    if (sx < -80 || sx > VW + 80) continue;
-    ctx.fillStyle = 'rgba(60,45,40,.5)';
-    for (let s = 0; s < 8; s++){
-      const w = 8 + s * 3.5, y = VH * 0.55 - s * 24;
-      ctx.fillRect(sx + Math.sin(frame * 0.005 + s + i) * 8 - w / 2, y, w, 24);
+  } else {
+    for (let i = 0; i < 3; i++){                             // heat-stained fog
+      ctx.fillStyle = 'rgba(210,120,60,' + (0.05 + i * 0.018) + ')';
+      const mxx = ((hash(i, 17) * 1800 + frame * (0.15 + i * 0.05) - cam.x * (0.5 + i * 0.1)) % (VW + 500) + VW + 500) % (VW + 500) - 250;
+      ctx.beginPath(); ctx.ellipse(mxx, VH - 80 - i * 24, 200 + i * 40, 15, 0, 0, 7); ctx.fill();
     }
-  }
-  ridge(0.4, VH * 0.84, 54, 0.004, 30, 0.01, '#2c160f');
-  const span = 260;
-  for (let i = -1; i < VW / span + 2; i++){
-    const wx = (Math.floor((cam.x * 0.4) / span) + i) * span;
-    const sd = Math.floor(wx / span);
-    deadTree(wx - cam.x * 0.4 + hash(sd, 21) * 120, VH * 0.84 - 6, 60 + hash(sd, 5) * 70, '#2c160f', sd);
-  }
-  // a ruined watchtower closer in, mid layer
-  for (const wx of [3200, 7600]){
-    const sx = wx * 0.4 - cam.x * 0.4 - 500;
-    if (sx > -140 && sx < VW + 60) drawRuin(sx, VH * 0.84, '#2c160f', wx + 3);
-  }
-  ridge(0.68, VH * 0.99, 40, 0.008, 22, 0.017, '#3c1e15');
-  for (let i = -1; i < VW / span + 2; i++){
-    const wx = (Math.floor((cam.x * 0.68) / span) + i) * span + 130;
-    const sd = Math.floor(wx / span) + 50;
-    deadTree(wx - cam.x * 0.68 + hash(sd, 21) * 100, VH * 0.99 - 6, 80 + hash(sd, 5) * 80, '#3c1e15', sd);
-  }
-  // fog
-  for (let i = 0; i < 3; i++){
-    ctx.fillStyle = 'rgba(210,120,60,' + (0.05 + i * 0.018) + ')';
-    const mxx = ((hash(i, 17) * 1800 + frame * (0.15 + i * 0.05) - cam.x * (0.5 + i * 0.1)) % (VW + 500) + VW + 500) % (VW + 500) - 250;
-    ctx.beginPath(); ctx.ellipse(mxx, VH - 80 - i * 24, 200 + i * 40, 15, 0, 0, 7); ctx.fill();
-  }
-  // ember drift -- always east (left to right)
-  for (let i = 0; i < 14; i++){
-    const ex = ((hash(i, 31) * 3000 + frame * (0.5 + hash(i, 5)) - cam.x * 0.8) % (VW + 60) + VW + 60) % (VW + 60) - 30;
-    const ey = (hash(i, 37) * VH * 0.9 + Math.sin(frame * 0.02 + i * 3) * 20 + VH) % VH;
-    ctx.fillStyle = 'rgba(255,' + (110 + (hash(i, 2) * 70 | 0)) + ',60,' + (0.25 + hash(i, 8) * 0.4) + ')';
-    ctx.fillRect(ex, ey, 2, 2);
+    for (let i = 0; i < 14; i++){                            // ember drift -- always east
+      const ex = ((hash(i, 31) * 3000 + frame * (0.5 + hash(i, 5)) - cam.x * 0.8) % (VW + 60) + VW + 60) % (VW + 60) - 30;
+      const ey = (hash(i, 37) * VH * 0.9 + Math.sin(frame * 0.02 + i * 3) * 20 + VH) % VH;
+      ctx.fillStyle = 'rgba(255,' + (110 + (hash(i, 2) * 70 | 0)) + ',60,' + (0.25 + hash(i, 8) * 0.4) + ')';
+      ctx.fillRect(ex, ey, 2, 2);
+    }
   }
 }
 const TILECOL = {
