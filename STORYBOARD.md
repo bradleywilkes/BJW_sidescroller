@@ -11,7 +11,7 @@ fight are next.
 
 ## The theme: TWO FIRES
 
-**The fire that warms and the fire that consumes are the same fire. Tending is the whole moral question.**
+**The fire that warms and the fire that consumes are one and the same. The difference is a keeper.**
 
 A hearth is fire that is kept, fed carefully, shared. A wildfire is fire that keeps
 itself. The villain didn't bring fire to the kingdom — he *was its fire-keeper*, and
@@ -28,8 +28,8 @@ watches their own sprite transform toward the villain's condition all game long.
 |---|---|---|
 | The game | **EMBERWARD** (*A Tale of Caldermark*) | *-ward* = keeping/tending; the theme in one word |
 | The kingdom | **Caldermark** | sounds like a real place on an old map, not a fantasy-name generator |
-| The hero | **The Hearthless Knight** | defined by what he lost custody of |
-| The villain | **Selwyn** (Old English *sele* + *wine*: "hall-friend") | a kindly steward's name — the Hearth-Warden's job description fossilized. The hall's friend is what ended the hall. Menace is 100% context |
+| The hero | **The Knight of the Cold Hearth** | named for the hearth he was denied — a fault he wrongly carries as his own until the Act II reveal |
+| The villain | **Selwyn** (Old English *sele* + *wine*: "hall-friend") | a kindly steward's name — the Ember Warden's job description fossilized. The hall's friend is what ended the hall. Menace is 100% context |
 | His epithet | "the Unquenched" survives only as what the **cultists** call him | his own boss card is titled "the Warm" instead — the menace comes from the warmth (see the intro card below) |
 | The sword | **Brand** | Old English/Norse: both "sword" and "burning log" |
 | Bone Footman | **Bone Levy** | Caldermark's own conscripted dead |
@@ -43,10 +43,11 @@ Boss intro card:
 
 ## The premise
 
-When Caldermark's own Hearth-Warden stopped tending the King's Coal and let it
+When the Ember Warden of Caldermark stopped tending the King's hearth and let it
 feed on him, the fire that had warmed a kingdom walked out its gates and consumed it.
-One knight survived, hearthless, with an empty lantern and a sword named Brand.
-He marches east through the ash to take back the stolen coal — and decide, at the
+One knight survived, blaming himself for the hearth gone cold, with an empty
+lantern and a sword named Brand.
+He marches east through the ash to take back the stolen fire — and decide, at the
 gate of the man it hollowed, whether it should ever be lit again.
 
 Title screen press line: `PRESS ENTER TO KEEP THE FLAME`
@@ -62,7 +63,7 @@ premise instead of leaving it to the README):
 
 *(The hero's tragedy. Never stated in Act I; it drips.)*
 
-The Hearth-Warden's office passes by lantern: when a Warden's watch ends, he fills
+The Ember Warden's office passes by lantern: when a Warden's watch ends, he fills
 his successor's lantern from the King's Coal and steps down. **The hero was the
 chosen successor.** He knelt at the great hearth with his empty lantern — and
 Selwyn refused to pass the fire. Refused to let his watch end. He fed the Coal

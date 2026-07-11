@@ -3,7 +3,7 @@
 *A Tale of Caldermark* — a gritty retro side-scroller in a single HTML file.
 No build step, no dependencies, no assets. Open it and play.
 
-> When Caldermark's own Hearth-Warden stopped tending the King's Coal and let it
+> When the Ember Warden of Caldermark stopped tending the King's hearth and let it
 > feed on him, the fire that had warmed a kingdom walked out its gates and consumed it.
 > One knight survived, hearthless, with an empty lantern and a sword named Brand.
 
