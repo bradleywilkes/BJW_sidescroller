@@ -30,9 +30,11 @@ python3 -m http.server 8000   # then visit http://localhost:8000
 | Hurl fire | C / L *(once Brand banks the heat at the Cold Hearth)* |
 | Start  | Enter · Pause P · Music M |
 
-On mobile a gamepad appears: a d-pad under the left thumb (slide for
-diagonals — ▲/▼ are the strike modifiers) and jump / strike face buttons
-under the right, joined by a 🔥 button once Brand banks the heat.
+On mobile a gamepad appears in the rails beside the game: a d-pad under the
+left thumb (slide for diagonals — ▲/▼ are the strike modifiers) and
+jump / strike face buttons under the right, joined by a 🔥 button once Brand
+banks the heat. A pause button sits top-right; pausing offers
+continue / quit to title (also navigable with ↑↓ + Enter).
 
 ## Act I — The Ash Harvest
 

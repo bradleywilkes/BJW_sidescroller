@@ -15,28 +15,33 @@
   canvas#game{image-rendering:pixelated;image-rendering:crisp-edges;background:#1a0f0e;
     max-width:100vw;max-height:100vh;}
   /* --- touch gamepad: d-pad cross (left thumb) + face buttons (right thumb) --- */
-  #dpad,#face{position:fixed;bottom:14px;z-index:9;display:none;touch-action:none;
+  #dpad,#face{position:fixed;bottom:10px;z-index:9;display:none;touch-action:none;
     -webkit-tap-highlight-color:transparent;}
   body.touch #dpad,body.touch #face{display:block;}
-  #dpad{left:14px;width:198px;height:198px;}
-  #face{right:14px;width:212px;height:200px;}
-  .dbtn,#dhub{position:absolute;width:64px;height:64px;background:rgba(22,14,10,.60);
+  #dpad{left:10px;width:150px;height:150px;}
+  #face{right:10px;width:160px;height:152px;}
+  .dbtn,#dhub{position:absolute;width:48px;height:48px;background:rgba(22,14,10,.60);
     border:2px solid rgba(255,200,140,.30);color:#e8dcc2;pointer-events:none;}
-  .dbtn{font:bold 19px Georgia,serif;display:flex;align-items:center;justify-content:center;}
-  #bU{left:67px;top:0;border-radius:14px 14px 0 0;border-bottom:none;}
-  #bD{left:67px;top:134px;border-radius:0 0 14px 14px;border-top:none;}
-  #bL{left:0;top:67px;border-radius:14px 0 0 14px;border-right:none;}
-  #bR{left:134px;top:67px;border-radius:0 14px 14px 0;border-left:none;}
-  #dhub{left:67px;top:67px;border:none;}
+  .dbtn{font:bold 15px Georgia,serif;display:flex;align-items:center;justify-content:center;}
+  #bU{left:51px;top:0;border-radius:11px 11px 0 0;border-bottom:none;}
+  #bD{left:51px;top:102px;border-radius:0 0 11px 11px;border-top:none;}
+  #bL{left:0;top:51px;border-radius:11px 0 0 11px;border-right:none;}
+  #bR{left:102px;top:51px;border-radius:0 11px 11px 0;border-left:none;}
+  #dhub{left:51px;top:51px;border:none;}
   .fbtn{position:absolute;border-radius:50%;background:rgba(22,14,10,.60);color:#e8dcc2;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    pointer-events:none;font:bold 24px Georgia,serif;line-height:1;}
-  .fbtn span{font:bold 9px Georgia,serif;letter-spacing:1px;text-transform:uppercase;
-    opacity:.65;margin-top:3px;}
-  #bA{right:8px;bottom:6px;width:80px;height:80px;border:2px solid rgba(150,225,165,.50);}
-  #bB{right:128px;bottom:34px;width:68px;height:68px;border:2px solid rgba(245,125,95,.55);}
-  #bC{right:36px;bottom:126px;width:62px;height:62px;border:2px solid rgba(255,175,60,.60);}
+    pointer-events:none;font:bold 18px Georgia,serif;line-height:1;}
+  .fbtn span{font:bold 7px Georgia,serif;letter-spacing:1px;text-transform:uppercase;
+    opacity:.65;margin-top:2px;}
+  #bA{right:6px;bottom:4px;width:60px;height:60px;border:2px solid rgba(150,225,165,.50);}
+  #bB{right:96px;bottom:26px;width:52px;height:52px;border:2px solid rgba(245,125,95,.55);}
+  #bC{right:26px;bottom:94px;width:46px;height:46px;border:2px solid rgba(255,175,60,.60);}
   .dbtn.on,.fbtn.on{background:rgba(255,190,120,.32);}
+  #bP{position:fixed;top:10px;right:10px;width:42px;height:42px;border-radius:50%;
+    background:rgba(22,14,10,.60);border:2px solid rgba(255,200,140,.30);color:#e8dcc2;
+    font:bold 12px Georgia,serif;display:none;align-items:center;justify-content:center;
+    z-index:9;touch-action:none;-webkit-tap-highlight-color:transparent;}
+  body.touch #bP{display:flex;}
 </style>
 <div id="wrap"><canvas id="game" width="960" height="544"></canvas></div>
 <div id="dpad">
@@ -49,6 +54,7 @@
   <div class="fbtn" id="bB">&#9876;<span>strike</span></div>
   <div class="fbtn" id="bA">&#11014;<span>jump</span></div>
 </div>
+<div id="bP">&#10074;&#10074;</div>
 <script>
 'use strict';
 //======================================================================
@@ -60,7 +66,9 @@ const TS = 32, VW = 960, VH = 544;
 const cvs = document.getElementById('game'), ctx = cvs.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 function fitCanvas(){
-  const s = Math.min(innerWidth / VW, innerHeight / VH);
+  // in landscape touch mode the side rails belong to the gamepad, not the game
+  const gut = (document.body.classList.contains('touch') && innerWidth > innerHeight) ? 174 : 0;
+  const s = Math.min((innerWidth - gut * 2) / VW, innerHeight / VH);
   cvs.style.width  = Math.floor(VW * s) + 'px';
   cvs.style.height = Math.floor(VH * s) + 'px';
 }
@@ -207,7 +215,18 @@ function buildHero(pose, stage){
   rect(G, 13, 19, 15, 21, '1'); G[19][14] = 'l';
   // lead arm + Brand
   rect(G, 15 + co, 12, 19 + co, 14, '4'); rect(G, 15 + co, 14, 19 + co, 15, '3');
-  if (pose === 'slash' || pose === 'cast'){
+  if (pose === 'slashUp'){
+    // arm thrown straight up past the helm; Brand overhead drawn in-world
+    seg(G, 21, 13, 24, 5, '3', 2);
+    rect(G, 23, 2, 25, 4, 'M');
+    G[4][26] = 'G'; G[3][26] = 'G';
+  } else if (pose === 'plunge'){
+    // both hands drive the blade down past the boots; blade drawn in-world
+    seg(G, 19, 14, 15, 20, '3', 2);
+    seg(G, 11 + co, 15, 14, 19, '2', 2);
+    rect(G, 13, 20, 17, 22, 'M');
+    G[22][15] = 'G';
+  } else if (pose === 'slash' || pose === 'cast'){
     seg(G, 18 + co, 14, 24, 15, '3', 2);
     rect(G, 25, 13, 26, 15, 'M');
     rect(G, 27, 12, 27, 16, 'G');
@@ -449,7 +468,8 @@ const AU = {
   fireball(){ this.tone(100, 60, 0.25, 'sawtooth', 0.12); this.noise(0.15, 0.1, 500); },
   // -- adaptive score (designed with an 8/16-bit chiptune consult) --
   // Base loop is the song's identity; each transformation stage ADDS a layer.
-  // SPARK: a heartbeat. KINDLED: rolling Vampire-Killer arp. ABLAZE: octave
+  // SPARK: a pitched heartbeat and a far-off bell (tonal -- the old noise
+  // heartbeat read as sword-slash foley). KINDLED: rolling arp. ABLAZE: octave
   // gallop + drums -- the kick lands where the heartbeat lived. Act II moves
   // the whole song to G minor over a lament bass: the same world, gone cold.
   theme: 'act1', pendingTheme: null, liveStage: 0,
@@ -461,11 +481,14 @@ const AU = {
              49, 0, 0, 0, 0, 0, 0, 0, 55, 0, 0, 0, 0, 0, 0, 0],
       bell: null,
       layers: [
-        { perc: [{dur: 0.1, hp: 150, vol: [0.09,0.05,0,0, 0.06,0.035,0,0, 0.09,0.05,0,0, 0.06,0.035,0,0,
-                                            0.09,0.05,0,0, 0.06,0.035,0,0, 0.09,0.05,0,0, 0.06,0.035,0,0]}],
+        { perc: [{thump: 1, vol: [0.09,0.05,0,0, 0.06,0.035,0,0, 0.09,0.05,0,0, 0.06,0.035,0,0,
+                                   0.09,0.05,0,0, 0.06,0.035,0,0, 0.09,0.05,0,0, 0.06,0.035,0,0]}],
           notes: [{wave:'sine', gain:0.045, decay:1.5, len:32,
             arr: [146.83,0,0,0, 146.83,0,0,0, 116.54,0,0,0, 116.54,0,0,0,
-                  98,0,0,0, 98,0,0,0, 110,0,0,0, 110,0,0,0]}] },
+                  98,0,0,0, 98,0,0,0, 110,0,0,0, 110,0,0,0]},
+                 {wave:'sine', gain:0.05, decay:3.0, len:32,   // far-off bell, Act II's voice
+            arr: [0,0,0,0, 0,0,880,0, 0,0,0,0, 0,0,0,0,
+                  0,0,0,0, 0,0,587.33,0, 0,0,0,0, 0,0,0,0]}] },
         { notes: [{wave:'square', gain:0.032, decay:0.9, len:64,
             arr: [293.66,349.23,440,587.33,440,349.23,293.66,349.23,440,587.33,440,349.23,293.66,349.23,440,587.33,
                   233.08,293.66,349.23,466.16,349.23,293.66,233.08,293.66,349.23,466.16,349.23,293.66,233.08,293.66,349.23,466.16,
@@ -493,8 +516,8 @@ const AU = {
       bell: [0,0,0,0, 0,0,783.99,0, 0,0,0,0, 0,0,0,0,
              0,0,0,0, 0,0,587.33,0, 0,0,0,0, 0,0,0,0],
       layers: [
-        { perc: [{dur: 0.1, hp: 120, vol: [0.07,0.04,0,0, 0,0,0,0, 0.07,0.04,0,0, 0,0,0,0,
-                                            0.07,0.04,0,0, 0,0,0,0, 0.07,0.04,0,0, 0,0,0,0]}],
+        { perc: [{thump: 1, vol: [0.07,0.04,0,0, 0,0,0,0, 0.07,0.04,0,0, 0,0,0,0,
+                                   0.07,0.04,0,0, 0,0,0,0, 0.07,0.04,0,0, 0,0,0,0]}],
           notes: [{wave:'sine', gain:0.04, decay:1.5, len:32,
             arr: [98,0,0,0, 98,0,0,0, 87.31,0,0,0, 87.31,0,0,0,
                   77.78,0,0,0, 77.78,0,0,0, 146.83,0,0,0, 146.83,0,0,0]}] },
@@ -549,6 +572,17 @@ const AU = {
     const g = this.ctx.createGain(); g.gain.value = vol;
     s.connect(f); f.connect(g); g.connect(this.mGain); s.start(t);
   },
+  mthump(vol, t){ // pitched heartbeat: pure sine with a pitch drop, zero noise --
+    if (!this.ctx) return;   // must never be mistakable for a sword slash
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(112, t);
+    o.frequency.exponentialRampToValueAtTime(42, t + 0.10);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol * 2.4, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    o.connect(g); g.connect(this.mGain); o.start(t); o.stop(t + 0.22);
+  },
   startMusic(){
     if (this.mTimer || !this.ctx) return;
     const stepDur = 60 / 96 / 2;
@@ -575,7 +609,9 @@ const AU = {
           } else if (v.arr[i]) this.mnote(v.arr[i], v.wave, v.gain, t, stepDur * v.decay);
         }
         for (const pc of (L.perc || [])){
-          if (pc.vol[i]) this.mnoise(pc.vol[i] >= 0.09 ? pc.dur : pc.dur * 0.7, pc.vol[i], pc.hp, t);
+          if (!pc.vol[i]) continue;
+          if (pc.thump) this.mthump(pc.vol[i], t);
+          else this.mnoise(pc.vol[i] >= 0.09 ? pc.dur : pc.dur * 0.7, pc.vol[i], pc.hp, t);
         }
       }
       this.step++;
@@ -587,6 +623,7 @@ const AU = {
 // INPUT
 //======================================================================
 const keys = {};
+let tapPt = null;   // last canvas tap this frame, in game coords (pause menu picks)
 const KEYMAP = {
   ArrowLeft:'left', KeyA:'left', ArrowRight:'right', KeyD:'right',
   ArrowUp:'up', KeyW:'up', Space:'jump', KeyZ:'jump',
@@ -611,6 +648,7 @@ addEventListener('keyup', e => {
 });
 if ('ontouchstart' in window){
   document.body.classList.add('touch');
+  fitCanvas();   // refit now that the gamepad owns the side rails
   // Gamepad-style handling: touches are re-hit-tested on every event, so a thumb
   // can slide between directions (or roll onto a diagonal) without lifting.
   const set = (act, on) => {
@@ -658,7 +696,12 @@ if ('ontouchstart' in window){
   for (const [el, h] of [[dpad, dpadHandler], [face, faceHandler]])
     for (const ev of ['touchstart', 'touchmove', 'touchend', 'touchcancel'])
       el.addEventListener(ev, h, {passive: false});
-  cvs.addEventListener('touchstart', () => { AU.init(); keys.startHit = true; });
+  cvs.addEventListener('touchstart', e => { AU.init(); keys.startHit = true;
+    const r = cvs.getBoundingClientRect(), t = e.touches[0];
+    tapPt = {x: (t.clientX - r.left) / r.width * VW, y: (t.clientY - r.top) / r.height * VH};
+  });
+  document.getElementById('bP').addEventListener('touchstart', e => {
+    e.preventDefault(); AU.init(); keys.pauseHit = true; }, {passive: false});
 }
 
 //======================================================================
@@ -789,7 +832,7 @@ const DECOR = [
 // WORLD STATE
 //======================================================================
 let act = 0, ROWS, LH, LW, grid;
-let state = 'title', frame = 0, playTime = 0, paused = false;
+let state = 'title', frame = 0, playTime = 0, paused = false, pauseSel = 0;
 let cam = {x: 0, shake: 0};
 let hitstop = 0, timeScale = 1, pendingSteps = 0;
 let player, enemies = [], items = [], particles = [], popups = [], corpses = [], fireballs = [], shots = [];
@@ -1248,7 +1291,7 @@ function updatePlayer(){
     } else { popup(p.x + p.w / 2, p.y - 10, 'BRAND RUNS COLD', '#8a95a8'); AU.fizzle(); }
   }
   if (p.cast === 10){ // release frame
-    fireballs.push({x: p.x + (p.dir > 0 ? p.w + 6 : -18), y: p.y + 18, vx: 5.0 * p.dir, vy: -0.4, w: 12, h: 12, t: 0});
+    fireballs.push({x: p.x + (p.dir > 0 ? p.w + 6 : -18), y: p.y + 18, vx: 5.0 * p.dir, vy: 0, w: 12, h: 12, t: 0});
     AU.fireball(); shake(1);
   }
   p.vy = Math.min(p.vy + 0.55, 13);
@@ -1503,7 +1546,7 @@ function updateEnemies(){
   // fireballs
   for (let i = fireballs.length - 1; i >= 0; i--){
     const f = fireballs[i];
-    f.t++; f.vy += 0.06; f.x += f.vx; f.y += f.vy;
+    f.t++; f.x += f.vx; f.y += f.vy;   // flies true -- no droop
     burst(f.x + 6, f.y + 6, '#ffb347', 1, 1, 0);
     const tx = Math.floor((f.x + 6) / TS), ty = Math.floor((f.y + 6) / TS);
     let dead = isSolid(tx, ty) || f.t > 160;
@@ -2526,7 +2569,8 @@ function drawPlayer(){
   const p = player;
   if (p.inv > 0 && !p.dead && (p.inv / 4 | 0) % 2) return;
   let pose = 'idle';
-  if (p.plunge) pose = 'jump';
+  if (p.plunge) pose = 'plunge';
+  else if (p.atk > 0 && p.atkUp) pose = 'slashUp';
   else if (p.atk > 0 || p.cast > 0) pose = 'slash';
   else if (!p.onGround) pose = 'jump';
   else if (Math.abs(p.vx) > 0.4) pose = (p.animT / 0.55 | 0) % 2 ? 'run1' : 'run2';
@@ -2555,6 +2599,13 @@ function drawPlayer(){
       ctx.arc(ax, p.y + 20, 22, p.dir > 0 ? -1.2 : Math.PI - 1.0, p.dir > 0 ? 1.0 : Math.PI + 1.2); // sweeps past horizontal
     }
     ctx.stroke();
+  }
+  // skyward: Brand thrust point-up from the raised fist
+  if (p.atk > 0 && p.atkUp && !p.plunge){
+    const hx = cx + p.dir * 14;
+    ctx.fillStyle = '#e8dcc2'; ctx.fillRect(hx - 2, p.y - 36, 3, 26);
+    ctx.fillStyle = '#a08a5c'; ctx.fillRect(hx + 1, p.y - 36, 2, 26);
+    ctx.fillStyle = '#c2762e'; ctx.fillRect(hx - 7, p.y - 12, 13, 3);
   }
   // plunge: Brand held point-down beneath him
   if (p.plunge){
@@ -2803,7 +2854,7 @@ function frameStep(){
   } else if (state === 'card'){
     drawCard();
   } else if (state === 'play'){
-    if (keys.pauseHit) paused = !paused;
+    if (keys.pauseHit){ paused = !paused; pauseSel = 0; keys.upHit = keys.downHit = false; }
     if (!paused){
       if (hitstop > 0){ hitstop--; }
       else {
@@ -2821,8 +2872,26 @@ function frameStep(){
     drawWorld();
     if (!window.EW_BG_ONLY){ drawHUD(); scanlines(); }
     if (paused){
-      ctx.fillStyle = 'rgba(12,6,4,.55)'; ctx.fillRect(0, 0, VW, VH);
-      text('PAUSED', VW / 2, VH / 2, 44, '#f3ead6');
+      ctx.fillStyle = 'rgba(12,6,4,.65)'; ctx.fillRect(0, 0, VW, VH);
+      text('PAUSED', VW / 2, 212, 44, '#f3ead6');
+      const rows = ['CONTINUE', 'QUIT TO TITLE'];
+      if (keys.upHit || keys.downHit){ pauseSel = 1 - pauseSel; keys.upHit = keys.downHit = false; }
+      let pick = -1;
+      if (tapPt){ // a tap picks the row it lands on; taps elsewhere do nothing
+        rows.forEach((s, i) => { const y = 300 + i * 52;
+          if (Math.abs(tapPt.x - VW / 2) < 160 && tapPt.y > y - 30 && tapPt.y < y + 14) pick = i; });
+      } else if (keys.startHit || keys.atkHit) pick = pauseSel;
+      rows.forEach((s, i) => {
+        const on = i === pauseSel, y = 300 + i * 52;
+        text(s, VW / 2, y, 24, on ? '#e8b23a' : '#a89878');
+        if (on){ text('»', VW / 2 - 138, y, 24, '#e8b23a'); text('«', VW / 2 + 138, y, 24, '#e8b23a'); }
+      });
+      if (pick === 0) paused = false;
+      else if (pick === 1){
+        paused = false;
+        if (act !== 0){ loadAct(0); resetLevel(false); }
+        state = 'title';
+      }
     }
   } else if (state === 'grade'){
     gradeScreen();
@@ -2830,6 +2899,7 @@ function frameStep(){
     gameoverScreen();
   }
   keys.jumpHit = keys.atkHit = keys.castHit = keys.startHit = keys.pauseHit = false;
+  tapPt = null;
 }
 requestAnimationFrame(tick);
 
