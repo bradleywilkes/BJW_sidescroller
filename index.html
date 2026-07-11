@@ -2872,10 +2872,10 @@ function frameStep(){
     if (keys.startHit){
       resetLevel(false);
       // the premise, told to the player -- then the act card
-      card = {lines: ['The King’s Coal warmed all Caldermark.', 'Its Warden was sworn to tend it.'], t: 0, dur: 220, next: 'play'};
+      card = {lines: ['The King’s Ember warmed all Caldermark.', 'Its Ember Warden was sworn to tend it.'], t: 0, dur: 220, next: 'play'};
       cardQueue = [
         {lines: ['He stopped. It fed on him instead.', 'Then it fed on the kingdom.'], t: 0, dur: 220, next: 'play'},
-        {lines: ['One knight lived. His lantern, empty.', 'He marches east to take back the fire.'], t: 0, dur: 220, next: 'play'},
+        {lines: ['One knight lived, and blamed himself.', 'He marches east to take back the fire.'], t: 0, dur: 220, next: 'play'},
         {title: 'ACT I — THE ASH HARVEST', lines: ['The wind carried it east.', 'So he walked east.'], t: 0, dur: 240, next: 'play'},
       ];
       state = 'card';

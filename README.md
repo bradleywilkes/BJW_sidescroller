@@ -5,7 +5,11 @@ No build step, no dependencies, no assets. Open it and play.
 
 > When the Ember Warden of Caldermark stopped tending the King's hearth and let it
 > feed on him, the fire that had warmed a kingdom walked out its gates and consumed it.
-> One knight survived, hearthless, with an empty lantern and a sword named Brand.
+> One knight survived, blaming himself for the hearth gone cold, with an empty
+> lantern and a sword named Brand.
+
+*The fire that warms and the fire that consumes are one and the same. The
+difference is a keeper.*
 
 ![Title](screenshots/title.png)
 
@@ -38,10 +42,10 @@ continue / quit to title (also navigable with ↑↓ + Enter).
 
 ## Act I — The Ash Harvest
 
-March east through razed Caldermark: the farmhouse with the meal still on the
-table, the burned scarecrow pointing the way, the dead orchard, the mill still
-turning with one sail aflame. Eight screens, ending at a shrine where one stone
-is still warm.
+March east as the Knight of the Cold Hearth through razed Caldermark: the
+farmhouse with the meal still on the table, the burned scarecrow pointing the
+way, the dead orchard, the mill still turning with one sail aflame. Eight
+screens, ending at a shrine where one stone is still warm.
 
 ![The Ash Harvest](screenshots/field.png)
 
@@ -54,7 +58,8 @@ is still warm.
   the horde campfire and from then on roughly one strike in twenty ignites,
   dealing double damage and burning the foe to ash on the spot
 - **Checkpoints:** dark torches along the road — walk up and light one
-  (`TENDED.`) to set your respawn and refill hearts, lives, and fire
+  (`TENDED.`) to set your respawn and refill hearts, lives, and fire. Watch
+  what the knight does with his lantern each time
 - **Kill chains** (DOUBLE! TRIPLE! RAMPAGE!), corpse-launch kill pops, hitstop,
   and a quiet HUD: ember-diamond hearts, three coals in the lantern, XP
 - **Aerial combat pays**: airborne kills earn +50% XP, and the plunge pogo-chains
@@ -72,8 +77,8 @@ is still warm.
 The castle the fire walked out of, under a bone moon. Eight screens: the
 gatehouse doors torn *outward*, the roofless great hall, the stripped armory
 with floors that give way underfoot, the spiral stair, and the Cold Hearth
-itself — where the game quietly explains the empty lantern, and Brand drinks
-the Warden's Coal.
+itself — the hearth the knight is named for, where Brand drinks the
+Warden's Coal.
 
 ![The Great Hall](screenshots/act2-hall.png)
 
@@ -88,15 +93,17 @@ the Warden's Coal.
   them all
 - **Traps:** collapsing floors, swinging censers over pits
 - The story's reveal is told exactly once — two quiet cards when the hero
-  kneels at the stone before the dead hearth — so don't skim it. And at the
-  act's end, from the broken east wall, look at the far rampart in the war
-  camp's glow: that small ember-lit silhouette is your only glimpse of the
-  villain before Act III.
+  kneels at the stone before the dead hearth. What they say about the empty
+  lantern, and about the blame he has carried east, is the heart of the game —
+  don't skim it. And at the act's end, from the broken east wall, look at the
+  far rampart in the war camp's glow: that small ember-lit silhouette is your
+  only glimpse of the villain before Act III.
 
 ![The Cold Hearth](screenshots/act2-hearth.png)
 
-Act III (The Hungry Light) — the war camp, the full-roster gauntlet, and
-Selwyn the Warm — is speced in [STORYBOARD.md](STORYBOARD.md) and coming next.
+Act III (The Hungry Light) — the war camp, the Forge Stack climb, the
+full-roster gauntlet, and Selwyn the Warm — is speced in
+[STORYBOARD.md](STORYBOARD.md) and coming next.
 
 ## Under the hood
 

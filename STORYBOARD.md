@@ -1,11 +1,12 @@
-# EMBERWARD — Storyboard & Build Spec (v2)
+# EMBERWARD — Storyboard & Build Spec (v3)
 
 *A Tale of Caldermark. Developed across three rounds with a fantasy-writing story
 consultant, plus a game-feel/engagement consult with a game-design specialist,
-and an 8/16-bit chiptune consult for the adaptive score.*
+an 8/16-bit chiptune consult for the adaptive score, and a v3 narrative revamp
+centering the hero's redemption arc.*
 
-**Build status:** Acts I and II are playable end to end. Act III and the Selwyn
-fight are next.
+**Build status:** Acts I and II are playable end to end. Act III, the Selwyn
+fight, and the epilogue are speced here and not yet built.
 
 ---
 
@@ -18,6 +19,13 @@ itself. The villain didn't bring fire to the kingdom — he *was its fire-keeper
 he stopped tending and started feeding. The hero is the last man still tending:
 every torch he lights, every checkpoint he plants, is the theme in one button-press.
 
+v3 sharpens the second reading of the tagline: *the difference is a keeper* is also
+a question — who decides who gets to keep? The hero has spent the whole march
+believing the fire itself judged him and found him unworthy of the watch. The truth
+is that fire doesn't judge; keepers do — and the keeper lied. **This is a redemption
+story, and the redemption is not earning the fire. It is learning he was never the
+one who failed.**
+
 The hero and the villain are the only two figures in the world with ember-glow
 behind their visors. The player levels up by feeding their own inner fire — and
 watches their own sprite transform toward the villain's condition all game long.
@@ -26,9 +34,12 @@ watches their own sprite transform toward the villain's condition all game long.
 
 | Thing | Name | Why |
 |---|---|---|
-| The game | **EMBERWARD** (*A Tale of Caldermark*) | *-ward* = keeping/tending; the theme in one word |
+| The game | **EMBERWARD** (*A Tale of Caldermark*) | *-ward* = keeping/tending; the theme in one word — and the office the game is named for |
 | The kingdom | **Caldermark** | sounds like a real place on an old map, not a fantasy-name generator |
-| The hero | **The Knight of the Cold Hearth** | named for the hearth he was denied — a fault he wrongly carries as his own until the Act II reveal |
+| The office | **the Ember Warden of Caldermark** | the crown's fire-keeper, sworn to tend the King's Ember. Full title on first reference; "the Warden" alone after |
+| The fire | **the King's Ember** | the seed-fire every hearth in Caldermark was lit from. It lives in the King's hearth — the hearth is the place, the Ember is the fire in it |
+| The salvage | **the Warden's Coal** | keeps its name: a coal is a piece raked from a fire and carried; the Ember is the living fire itself. What Brand drinks at the Cold Hearth is a carried piece, not the flame |
+| The hero | **the Knight of the Cold Hearth** | named for the hearth he was denied — a fault he wrongly carries as his own until the Act II reveal |
 | The villain | **Selwyn** (Old English *sele* + *wine*: "hall-friend") | a kindly steward's name — the Ember Warden's job description fossilized. The hall's friend is what ended the hall. Menace is 100% context |
 | His epithet | "the Unquenched" survives only as what the **cultists** call him | his own boss card is titled "the Warm" instead — the menace comes from the warmth (see the intro card below) |
 | The sword | **Brand** | Old English/Norse: both "sword" and "burning log" |
@@ -40,6 +51,8 @@ Boss intro card:
 > `He kept your fire. He keeps it still.`
 
 "He keeps it still" is the whole villain: in his mind the theft is continued duty.
+And after the Act II reveal the line turns a second time — *your* fire is literal.
+It was the hero's inheritance to receive, and Selwyn kept it.
 
 ## The premise
 
@@ -55,47 +68,84 @@ Title screen press line: `PRESS ENTER TO KEEP THE FLAME`
 **The premise crawl** (3 cards after START, before Act I — the game tells its own
 premise instead of leaving it to the README):
 
-> `The King's Coal warmed all Caldermark.` / `Its Warden was sworn to tend it.`
+> `The King's Ember warmed all Caldermark.` / `Its Ember Warden was sworn to tend it.`
 > `He stopped. It fed on him instead.` / `Then it fed on the kingdom.`
-> `One knight lived. His lantern, empty.` / `He marches east to take back the fire.`
+> `One knight lived, and blamed himself.` / `He marches east to take back the fire.`
 
-## THE TWIST — The Denied Succession
+Card three is the self-blame plant: the game states the hero carries fault before
+it says anything else about him — and never says for what. The Cold Hearth answers.
 
-*(The hero's tragedy. Never stated in Act I; it drips.)*
+## THE TWIST — The Withheld Fire
 
-The Ember Warden's office passes by lantern: when a Warden's watch ends, he fills
-his successor's lantern from the King's Coal and steps down. **The hero was the
-chosen successor.** He knelt at the great hearth with his empty lantern — and
-Selwyn refused to pass the fire. Refused to let his watch end. He fed the Coal
-instead of handing it on; it fed on him, and then on Caldermark.
+*(The hero's tragedy — and, he will learn, never his fault. Never stated in Act I;
+it drips.)*
+
+The Ember Warden's office passes by lantern: when a Warden's watch ends, he kneels
+his heir at the great hearth and fills the heir's lantern from the King's Ember.
+But that is not what aspirants are taught. The doctrine of the rite says *the
+Warden lifts the lantern, and the Ember chooses* — an old, convenient lie that
+lets a passed-over aspirant blame the fire instead of the man.
+
+**The hero was the chosen heir.** He knelt at the great hearth. Selwyn performed
+the rite in full — raised the empty lantern to the King's Ember, held it there,
+lowered it dark. The court read the fire's judgment. The hero read his own
+unworthiness, and he has carried it ever since: he believes the hearth went cold
+because the Ember weighed him and found nothing worth passing on.
+
+The truth: the Ember does not choose. A Warden *fills* his heir's lantern — an act
+of will, a gift given. Selwyn withheld it. He never intended to let his watch end —
+not for this heir, not for any. He performed the rite as theater, let the shame
+land on the kneeling man, and went on feeding the Ember instead of handing it on;
+it fed on him, and then on Caldermark.
 
 **The empty lantern the player carries from screen one was never emptied by
-tragedy — it was never filled.** Not revenge: *inheritance withheld.*
+tragedy — it was never filled.** And the fault the hero carries from card three of
+the crawl was never his — it was manufactured. Not revenge: *inheritance withheld,
+and the blame for it planted on the heir.*
+
+**The reveal must land twice** — this is the load-bearing craft note for II-5. The
+*player* learns the succession mechanism and that the hero was the heir. The *hero*
+learns that the rite is a gift, not a judgment: the fire never refused him — a man
+did. Both revelations ride the same two cards.
 
 **The drip:**
 
+- **Crawl card three (plant, one line).** `One knight lived, and blamed himself.`
+  The fault is stated before the quest is — and never explained until II-5.
 - **Act I (plant, no text).** Every roadside shrine has two iron lantern-brackets —
   one always empty. Reads as looting now, ritual later. Checkpoint idle animation:
-  the hero lifts his lantern to the lit torch for a beat, then lowers it, still dark.
-  Players notice by the third checkpoint. Nothing is explained.
+  the hero lifts his lantern to the lit torch for a beat, then lowers it, still
+  dark. This is not habit — it is the rite, re-asked. At every fire he tends he
+  offers his lantern again, and takes its darkness as the same answer. The player
+  is watching a man confirm his own sentence twenty times over. Nothing is
+  explained. Players notice by the third checkpoint.
 - **Act II-5, the Cold Hearth (reveal).** Beside the great hearth: the Warden's iron
   mantle in the ash — and a kneeling-stone with a lantern cradle. The hero's lantern
   clicks in perfectly. Two cards, poetry then plain fact (the only place the
-  mechanism is stated — review flagged that the twist's causal fact must reach
-  the player somewhere):
+  mechanism is stated — the twist's causal fact must reach the player here):
   `The lantern fits the cradle.` / `It was never filled.`
   `A Warden fills his heir's lantern.` / `Selwyn never let his watch end.`
+  Dual reading, card by card: the first card is the *player's* — the cradle proves
+  he was the heir, and *never filled* means never emptied by loss. The second card
+  is the *hero's* — a Warden **fills** the lantern; filling is the Warden's act,
+  not the Ember's verdict. The fire never judged him. The refusal was a man's,
+  wearing the fire's face. `Selwyn never let his watch end.` names the wrong out
+  loud.
   Then the Warden's Coal — the succession finally happens, wrong way round: by
-  salvage, not rite, and into the *sword*, not the lantern.
-- **Act III (recontextualize).** Cultist graffiti: soot-paintings of lanterns crossed
-  out — the cult are failed aspirants who begged Selwyn for fire, were refused, and
-  chose to feed rather than carry. The field of dark visors (III-6) lands twice:
-  everyone in this war was denied the fire except the man hoarding it. A fire
-  hoarded *is* a wildfire.
-- **Epilogue (cards unchanged, now heavier).** **Kindle** = the hero completes his
-  own denied investiture — takes up the watch that destroys its keepers, while his
-  sprite already burns Ablaze. `Tended, this time.` becomes a vow. **Refuse** = he
-  ends the succession itself — the one thing Selwyn could never do.
+  salvage, not rite, and into the *sword*, not the lantern. He takes the
+  inheritance the only way left to take it.
+- **Act III (dark mirror).** The cult are failed aspirants — people who knelt
+  somewhere down the years, watched their lanterns stay dark, and believed the same
+  lie the hero believed. He kept tending anyway; they chose to feed. Crossed-out
+  lantern soot-graffiti, the Aspirants' Wall (III-3), and one kneeling cultist
+  performing the hero's own checkpoint ceremony. The field of dark visors (III-6)
+  lands twice: everyone in this war was told the fire refused them — and only the
+  man hoarding it knew it never chooses. A fire hoarded *is* a wildfire.
+- **Epilogue (same cards, new weight).** Whichever ending the player picks, it is
+  chosen by a man who now knows the fault was never his — unworthiness has left the
+  room. **Kindle** = he completes the investiture that was stolen from him, eyes
+  open about what the watch does to its keepers. `Tended, this time.` is a vow.
+  **Refuse** = he lets the watch end — the one thing Selwyn could never do.
   `No fire outlives its keeper twice.` becomes doctrine.
 
 ---
@@ -156,6 +206,7 @@ Each stage moves the hero's silhouette toward Selwyn's:
   rooms (gameplay-legible in the keep and epilogue).
 - By Ablaze the hero's palette reads closer to the boss's than to his own Act I
   sprite. The player should quietly wonder how much of the man is left to burn.
+  (The redemption answer, delivered by the epilogue: what's left is the keeper.)
 
 **The transformation moment (showstopper, no cutscene, ~2s, control never taken):**
 game speed lerps to 25% over 20 real frames → screen darkens 40% except the hero →
@@ -170,11 +221,11 @@ Toasts: `SPARK. THE EMBER STIRS.` · `KINDLED. THE VISOR BRIGHTENS.` ·
 ### Lives, checkpoints, coins
 Three coals in the lantern; each death spends one (`One coal spent.`). Checkpoints
 are torches/banners the hero lights and plants — dark → lit on use (`TENDED.`), and
-they refill hearts context and Embers. Coins are dead men's coins, tallied into XP.
+they refill hearts and Embers. Coins are dead men's coins, tallied into XP.
 
 ---
 
-## ACT I — THE ASH HARVEST
+## ACT I — THE ASH HARVEST *(built)*
 
 > `The wind carried it east.`
 > `So he walked east.`
@@ -190,7 +241,7 @@ they refill hearts context and Embers. Coins are dead men's coins, tallied into 
 | 7 | Horde campfire pit: bones, kingdom coins, a dead soldier's fire-steel in the ash | Wave fight; **Soldier's Fire-Steel** pickup (crits unlock) |
 | 8 | Roadside shrine, cache looted, one stone still warm | Mini-gauntlet; **Hearthstone** (4th heart); **SPARK** transformation lands |
 
-## ACT II — THE COLD HEARTH
+## ACT II — THE COLD HEARTH *(built)*
 
 > `Every hearth in Caldermark was lit`
 > `from one fire. He knew where it lived.`
@@ -200,62 +251,106 @@ they refill hearts context and Embers. Coins are dead men's coins, tallied into 
 | 1 | Gatehouse doors torn *outward* — the fire left; nothing broke in | Rubble-climb intro; Levies on the stairs |
 | 2 | Great hall roofless; sky where rafters were | **Cinder Wraith** true intro, swooping between beam-hops |
 | 3 | Armory racks stripped bare but for one child-sized helm | Brigands in a tight corridor; collapsing-floor trap |
-| 4 | Spiral stair; arrow-slit light shafts full of ember-drift | Zigzag platform climb — the game's tallest, spanning the full screen height — with Wraiths diving through the shafts; mid-climb checkpoint |
-| 5 | **THE COLD HEARTH** — arena-sized dead hearth; the Warden's iron mantle in the ash; a kneeling-stone with a lantern cradle | Silent screen, no enemies. Lantern-cradle card (the twist reveal), then **Warden's Coal** — Brand ignites; fireball tutorial on unlit braziers |
+| 4 | Spiral stair; arrow-slit light shafts full of ember-drift | Zigzag platform climb — the game's tallest built, spanning the full screen height — with Wraiths diving through the shafts; mid-climb checkpoint |
+| 5 | **THE COLD HEARTH** — arena-sized dead hearth; the Warden's iron mantle in the ash; a kneeling-stone with a lantern cradle | Silent screen, no enemies. The lantern-cradle cards — the dual reveal, see THE TWIST — then **Warden's Coal**: Brand ignites; fireball tutorial on unlit braziers |
 | 6 | Hearth-sigils painted inverted in soot — cultist graffiti | **Ember Cultist** intro lobbing fire from ledges; fireball is the counter-tool. First cultist kill toast: `They tithe to a nameless warmth.` |
 | 7 | Throne room; the throne alone untouched and dustless | Trap gauntlet — swinging censers, spike pits — into an ambush wave |
 | 8 | Broken east wall framing the war camp's glow — and on a distant rampart in that glow, one small ember-lit silhouette. Selwyn, seen once, far off | Long descent, mixed gauntlet; **KINDLED** transformation; checkpoint |
 
-## ACT III — THE HUNGRY LIGHT
+## ACT III — THE HUNGRY LIGHT *(unbuilt — full spec, free to iterate)*
 
 > `His camp burned brighter than the kingdom.`
 > `Nothing in it was warm.`
 
+The act's job: stage the hero's self-blame at congregation scale, then take it away
+from him for good. The camp is full of people who were told exactly what he was
+told — *the fire found you wanting* — and he walks through what believing it makes
+of a person.
+
+Level-design reality check, baked in: every built level is one screen tall (17
+tiles, no vertical camera); Acts I–II verticality is optional half-screen detours,
+and there are only three lethal drops across all 16 built screens. Act III is where
+the game earns its vertical — one true climb (engine-flagged below) and two lethal
+fire hazards.
+
 | # | Visual beat | Gameplay beat |
 |---|---|---|
-| 1 | Palisade built from the scorched house-doors of Caldermark homes | Bright firelight now hostile; Cultists + Hounds together |
-| 2 | Cage wagons, all empty, doors open — nothing kept, everything fed | Brigand pairs; fire trenches to leap |
-| 3 | Tithe-brazier ringed with offered gauntlets — hands and all; crossed-out lantern graffiti | Cultist nest wave; heart-embers scarce from here on |
-| 4 | Mound of Caldermark's crimson banners piled for burning | **Hearthstone** (5th heart) hidden behind the mound; checkpoint |
-| 5 | Horde forge melting kingdom coins into cleaver steel | Bellows-and-spark platforming; Wraiths in the smoke |
-| 6 | Ranked horde helms on posts — every visor dark. Only two visors in this world glow | Full-roster gauntlet |
-| 7 | Avenue of torches taller than houses; the hero's visor-glow vanishes against the blaze | No enemies. A dread walk. Final checkpoint. Silence is the beat |
-| 8 | Arena: a bonfire of banners, Selwyn feeding it by hand | **BOSS**; **ABLAZE** reached during the fight |
+| 1 | **THE DOOR PALISADE** — a palisade built from the scorched house-doors of Caldermark homes | Bright firelight now hostile (the motif inversion begins); Cultists + Hounds together |
+| 2 | **THE CAGE ROAD** — cage wagons, all empty, doors open — nothing kept, everything fed | Brigand pairs; fire trenches to leap — the trenches are lethal (fall risk 1 of the act) |
+| 3 | **THE ASPIRANTS' WALL** — tithe-brazier ringed with offered gauntlets, hands and all; behind it a wall of soot-painted lanterns, each crossed out — one per convert; the crimson toy in the tithe-pile. And one cultist who does not attack: he kneels at the brazier, performing the hero's own lantern-lift with an empty gauntlet | Cultist nest wave (the kneeler excepted — he fights only if struck, and is worth no XP and breaks no chain; the game stays silent about him either way); heart-embers scarce from here on |
+| 4 | **THE BANNER MOUND** — Caldermark's crimson banners piled for burning | **Hearthstone** (5th heart) hidden behind the mound; checkpoint |
+| 5 | **THE FORGE STACK** — the horde forge built vertical: melt-channel below, scaffold and bellows above; kingdom coins go in, cleaver steel comes out. Ember-drift blows *upward* here — the one sanctioned break in the wind rule, because the heat column owns the sky | The climb: ~2.5 screens of genuine vertical; timed bellows-blasts as hazards, Wraiths diving through the smoke; the melt-channel below is lethal (fall risk 2). **Engine flag: this needs vertical camera scroll, which the engine does not have.** Fallback if the camera stays fixed: three chained single-screen tiers (5a/5b/5c) with a lethal drop guarding each ledge transition — same beat, no camera work |
+| 6 | **THE FIELD OF VISORS** — ranked horde helms on posts, every visor dark. Only two visors in this world glow | Full-roster gauntlet |
+| 7 | **THE AVENUE** — torches taller than houses; the hero's visor-glow vanishes against the blaze | No enemies. A dread walk. Final checkpoint. Silence is the beat |
+| 8 | **THE PYRE** — arena: a bonfire of banners, Selwyn feeding it by hand | **BOSS**; **ABLAZE** reached during the fight |
 
-## The boss — SELWYN THE WARM
+**Act III checkpoint idle:** the familiar lantern-lift gains a half-second
+hesitation before he performs it — fire feels different here. (The mechanical hinge
+of the Act III inversion, taught through the animation the player has seen 15+
+times. After the Cold Hearth he knows the darkness of his lantern was never an
+answer — but the gesture is all he has, so he keeps making it, slower.)
+
+## The boss — SELWYN THE WARM *(unbuilt — spec)*
 
 > `SELWYN THE WARM`
 > `He kept your fire. He keeps it still.`
 
+The fight is the theme staged: a keeper against a hoarder — and the arena gives the
+player a way to *win by tending*.
+
+**The four braziers.** The arena holds four cold braziers. Any brazier the player
+lights (fireball only — Embers spent on something other than damage) stays lit and
+becomes tended ground. In phase 2, any floor-fire that reaches an *unlit* brazier
+scorches its socket and locks it out — the window closes as Selwyn comes apart. In
+phase 3, when the arena edges ignite, the ring around each tended brazier stays
+cool: the only safe footing is the fires the player kept. The man the fire
+supposedly refused keeps four hearths alive in the middle of a boss fight — the
+redemption argued as mechanics, no text needed.
+
 1. **The Warden** — slow, telegraphed cleaver arcs, a keeper's discipline guarding
-   the coal in his chest; the man he was still holds the line.
-2. **The Untended** — armor seams crack and vent (the same seam-glow the player
-   wears since Kindled); he ignites floor patches he then avoids feeding — the fire
-   is escaping him; faster but sloppier.
+   the coal in his chest; the man he was still holds the line. All four braziers
+   are lightable.
+2. **The Untended** — armor seams crack and vent (the same seam-glow the player has
+   worn since Kindled); he ignites floor patches he then avoids feeding — the fire
+   is escaping him; faster but sloppier. Floor-fires threaten unlit braziers. Pairs
+   of Ash Imps skitter out of the bonfire (embers made flesh) — chain fodder, and
+   the XP that carries the player over the ABLAZE line mid-fight.
 3. **The Wildfire** — cleaver dropped half-melted; a walking bonfire doing
    Ash-Hound rushes as the arena edges ignite. **He brightens as his HP drops:**
-   dying as pure spending.
+   dying as pure spending. Tended braziers are the only cool ground.
+
+**Gesture rhyme:** at each phase break, Selwyn cups the coal in his chest with both
+hands — the keeper's carrying gesture curled shut into hoarding. The player will
+see the same two hands open in the epilogue.
 
 Phase transitions: 20f hitstop, white flash, palette shift hotter, 8px shake over
 30f, arena torches flare. **Death beat — no text.** He gutters; the fire leaves him
-standing, then the husk falls. Every light dies except the King's Coal glowing
-where he stood. Darkest screen in the game.
+standing, then the husk falls. Every light dies — the tended braziers gutter last,
+one by one — except the King's Ember, glowing where he stood. Darkest screen in
+the game.
 
-## Epilogue (playable, silent)
+## Epilogue (playable, silent) *(unbuilt — spec)*
 
-At the dead great hearth, coal in hand. As the hero approaches, he instinctively
-begins the lantern-lift gesture he has performed at every checkpoint — then stops
-himself mid-motion, lantern raised, awaiting input. That one held frame is the
-tell that this moment is a decision. Press attack to kindle — or walk off-screen
-to refuse. No prompt, no menu.
+At the dead great hearth, the King's Ember carried in both hands — open-palmed,
+the keeper's gesture Selwyn curled shut. As the hero approaches, he instinctively
+begins the lantern-lift he has performed at every checkpoint — then stops himself
+mid-motion, lantern raised, awaiting input. That one held frame is the tell that
+this moment is a decision. Press attack to kindle — or walk off-screen to refuse.
+No prompt, no menu.
 
-**Act III checkpoint idle**: the familiar lantern-lift gains a half-second
-hesitation before he does it — fire feels different here. (The mechanical hinge
-of the Act III inversion, taught through the animation the player has seen 15+
-times.)
+- **KINDLE:** he sets the Ember in the great hearth. As it takes, he lifts his
+  lantern to it one last time — and this time it lights. The gesture the game has
+  taught twenty times is finally answered; the stolen investiture completes, on his
+  own terms, while his sprite already burns Ablaze.
+  Cards: `The great hearth of Caldermark burned.` / `Tended, this time.` — a vow
+  made by a man who now knows he was always fit for the watch.
+- **REFUSE:** he sets the Ember in the ash and walks off-screen, lantern dark by
+  choice for the first time. He ends the succession itself — lets the watch end,
+  the one thing Selwyn could never do.
+  Cards: `He left the ember to the cold.` / `No fire outlives its keeper twice.`
 
-- **KINDLE:** `The great hearth of Caldermark burned.` / `Tended, this time.`
-- **REFUSE:** `He left the coal to the cold.` / `No fire outlives its keeper twice.`
+Either way the ending is his redemption: the choice is made free of the fault he
+carried east. Unworthiness is not in the room; only judgment is.
 
 ---
 
@@ -285,27 +380,47 @@ transformation → kill chains → grade cards.
 
 ## All in-game text
 
+Built (matches `index.html`):
+
 | Moment | Line |
 |---|---|
-| Press start | `PRESS START TO KEEP THE FLAME` |
-| Coin | `A dead man's coin. Carry it home.` |
+| Press start | `PRESS ENTER TO KEEP THE FLAME` |
+| Crawl card 1 | `The King's Ember warmed all Caldermark.` / `Its Ember Warden was sworn to tend it.` |
+| Crawl card 2 | `He stopped. It fed on him instead.` / `Then it fed on the kingdom.` |
+| Crawl card 3 | `One knight lived, and blamed himself.` / `He marches east to take back the fire.` |
+| Act I card | `ACT I — THE ASH HARVEST` · `The wind carried it east.` / `So he walked east.` |
+| Act II card | `ACT II — THE COLD HEARTH` · `Every hearth in Caldermark was lit` / `from one fire. He knew where it lived.` |
+| Coin (first) | `A dead man's coin. Carry it home.` |
 | Heart ember | `An ember. It warms what it can.` |
-| Hearthstone | `A hearthstone, still warm. Keep it.` |
-| Warden's Coal | `A kept coal. Brand banks the heat.` |
-| Fire-Steel | `A soldier's fire-steel. Struck true.` |
+| Hearthstone | `A hearthstone, still warm. Keep it.` / `+1 HEART OF WARMTH` |
+| Warden's Coal | `A kept coal. Brand banks the heat.` / `C — HURL FIRE` |
+| Fire-Steel | `A soldier's fire-steel. Struck true.` / `One strike in twenty will catch.` |
 | Crit flash | `THE BLADE CATCHES` |
 | Fireball empty | `BRAND RUNS COLD` |
 | Checkpoint | `TENDED.` |
-| Twist card (II-5) | `The lantern fits the cradle.` / `It was never filled.` |
+| Twist cards (II-5) | `The lantern fits the cradle.` / `It was never filled.` — then `A Warden fills his heir's lantern.` / `Selwyn never let his watch end.` |
 | Level 1 | `SPARK. THE EMBER STIRS.` |
 | Level 2 | `KINDLED. THE VISOR BRIGHTENS.` |
 | Level 3 | `ABLAZE. HOW BRIGHTLY YOU BURN.` |
 | Death | `One coal spent.` |
 | Game over | `The lantern is empty.` / `The wind takes the rest.` |
-| Boss intro | `SELWYN THE WARM` / `He kept your fire. He keeps it still.` |
+| Act II end | `TO BE CONTINUED` / `ACT III — THE HUNGRY LIGHT` |
 | Tally header | `HOW BRIGHTLY DID YOU BURN?` |
 
+To build (Act III / boss / epilogue):
+
+| Moment | Line |
+|---|---|
+| Act III card | `ACT III — THE HUNGRY LIGHT` · `His camp burned brighter than the kingdom.` / `Nothing in it was warm.` |
+| Boss intro | `SELWYN THE WARM` / `He kept your fire. He keeps it still.` |
+| Epilogue: kindle | `The great hearth of Caldermark burned.` / `Tended, this time.` |
+| Epilogue: refuse | `He left the ember to the cold.` / `No fire outlives its keeper twice.` |
+
 ## Enemy lore (bestiary lines)
+
+Full lines below; the build shows a compressed first-kill toast per kind
+(e.g. `The kingdom's levy still musters.` · `The dogs stayed. The fire kept them.` ·
+`Sellswords, paid in dead men's coin.`).
 
 - **Ash Hound** — *The farm dogs stayed by the burned homes. The fire kept them.*
 - **Ash Imp** — *Something small learned to love the ash.*
@@ -330,10 +445,16 @@ horde's tithe-pile in III-3. Whether the farm was *his* home is never said.
 4. **Two fire languages:** tended fire small, round, steady, slow-animated; wildfire
    tall, ragged, fast-animated. Never mix the sprite sets.
 5. **Checkpoints change state on use:** dark torch/furled banner → lit + planted.
-   The hero's idle there: lifts his lantern to the flame, lowers it, still dark.
+   The hero's idle there: lifts his lantern to the flame, lowers it, still dark —
+   the rite, re-asked (see THE TWIST).
 6. **Enemy visors and eye-slits are always dark** — pays off at III-6.
-7. **Ember-drift always blows left-to-right** (the wind went east).
+7. **Ember-drift always blows left-to-right** (the wind went east). One sanctioned
+   exception: the Forge Stack (III-5), where the heat column blows it upward.
 8. **Selwyn brightens as his HP drops;** after his death, the darkest palette in the
-   game — the King's Coal the only warmth left.
+   game — the King's Ember the only warmth left.
 9. **Paired lantern-brackets on every shrine, one always empty** — the twist,
    hiding in set dressing from screen 3.
+10. **The lantern-lift is the game's signature gesture** — the hero at every
+    checkpoint, the kneeling cultist at the tithe-brazier (III-3), Selwyn's
+    closed-hand inversion at phase breaks, and the epilogue's answered lift.
+    One motion, four meanings.
