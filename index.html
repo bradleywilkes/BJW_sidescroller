@@ -19,11 +19,15 @@
     color:#e8dcc2;font:bold 22px Georgia,serif;display:none;
     align-items:center;justify-content:center;z-index:9;touch-action:none;}
   body.touch .tbtn{display:flex;}
+  .tbtn.sm{width:56px;height:56px;font-size:17px;bottom:94px;}
   #bL{left:18px}#bR{left:96px}#bA{right:96px}#bB{right:18px}
+  #bD{left:22px}#bU{left:100px}#bC{right:61px}
 </style>
 <div id="wrap"><canvas id="game" width="960" height="544"></canvas></div>
 <div class="tbtn" id="bL">&#9664;</div><div class="tbtn" id="bR">&#9654;</div>
 <div class="tbtn" id="bB">&#9876;</div><div class="tbtn" id="bA">&#11014;</div>
+<div class="tbtn sm" id="bD">&#9660;</div><div class="tbtn sm" id="bU">&#9650;</div>
+<div class="tbtn sm" id="bC" style="display:none">&#128293;</div>
 <script>
 'use strict';
 //======================================================================
@@ -593,6 +597,7 @@ if ('ontouchstart' in window){
     el.addEventListener('touchend', e => { e.preventDefault(); keys[act] = false; }, {passive:false});
   };
   bind('bL', 'left'); bind('bR', 'right'); bind('bA', 'jump'); bind('bB', 'atk');
+  bind('bU', 'up'); bind('bD', 'down'); bind('bC', 'cast');   // ▲+⚔ skyward · ▼+⚔ plunge · 🔥 once Brand banks heat
   cvs.addEventListener('touchstart', () => { AU.init(); keys.startHit = true; });
 }
 
@@ -958,6 +963,11 @@ function resetLevel(fromCheckpoint, keepRun){
     plunge: false, atkUp: false, prevVy: 0};
   cam.x = Math.max(0, Math.min(player.x - VW * 0.35, LW * TS - VW));
   timeScale = 1; hitstop = 0;
+  syncFireBtn();
+}
+function syncFireBtn(){ // the 🔥 touch button exists only once Brand banks heat
+  const b = document.getElementById('bC');
+  if (b) b.style.display = hasCoal ? '' : 'none';
 }
 
 //======================================================================
@@ -1510,6 +1520,7 @@ function updateItems(){
       }
       else if (it.kind === 'K'){
         hasCoal = true; embers = maxEmbers; hitsBanked = 0;
+        syncFireBtn();
         AU.bigPickup(); burst(it.x + 16, it.y + 14, '#ffb347', 16, 4);
         card = {title: 'THE WARDEN’S COAL', icon: 'K',
           lines: ['A kept coal. Brand banks the heat.', 'C — HURL FIRE'],
