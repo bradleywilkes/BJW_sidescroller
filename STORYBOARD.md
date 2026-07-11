@@ -1,7 +1,11 @@
 # EMBERWARD — Storyboard & Build Spec (v2)
 
 *A Tale of Caldermark. Developed across three rounds with a fantasy-writing story
-consultant, plus a game-feel/engagement consult with a game-design specialist.*
+consultant, plus a game-feel/engagement consult with a game-design specialist,
+and an 8/16-bit chiptune consult for the adaptive score.*
+
+**Build status:** Acts I and II are playable end to end. Act III and the Selwyn
+fight are next.
 
 ---
 
@@ -100,8 +104,10 @@ tragedy — it was never filled.** Not revenge: *inheritance withheld.*
 ### Health
 - Hero: 3 hearts → 5 via **Hearthstones** (end of Act I, mid Act III). Heart refills
   are **embers**; healing is literally being warmed.
-- Enemies: Bone Levy 1 hit · Ash Hound 1 · Cinder Wraith 1 · Ember Cultist 2 ·
-  Iron Brigand 3 (telegraphed heavy swing) · Selwyn: 3 phases.
+- Enemies: Bone Levy 1 hit · Ash Hound 1 · Ash Imp 1 (small erratic hopper,
+  premium XP) · Cinder Wraith 1 · Ember Cultist 2 · Iron Brigand 3 (telegraphed
+  heavy swing; hurls a parryable axe at range) · Selwyn: 3 phases.
+  Every spawn rolls its own patrol tempo so packs don't march in lockstep.
 
 ### Fireball — "Embers in the Blade"
 At the Cold Hearth, Brand drinks the Warden's Coal: heat banked in steel. Each
@@ -300,6 +306,7 @@ transformation → kill chains → grade cards.
 ## Enemy lore (bestiary lines)
 
 - **Ash Hound** — *The farm dogs stayed by the burned homes. The fire kept them.*
+- **Ash Imp** — *Something small learned to love the ash.*
 - **Bone Levy** — *The kingdom's levy still musters. For the other side.*
 - **Iron Brigand** — *Sellswords paid in dead men's coin. They will be paid again.*
 - **Cinder Wraith** — *It rose as smoke and never came down.*
