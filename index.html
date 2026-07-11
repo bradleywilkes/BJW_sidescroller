@@ -364,7 +364,8 @@ const AU = {
     if (this.ctx) return;
     try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e){ return; }
     this.mGain = this.ctx.createGain(); this.mGain.gain.value = 0.14;
-    this.mGain.connect(this.ctx.destination);
+    const comp = this.ctx.createDynamicsCompressor();      // full ABLAZE stack can't clip
+    this.mGain.connect(comp); comp.connect(this.ctx.destination);
     this.startMusic();
   },
   tone(f0, f1, dur, type, vol, when){
@@ -421,11 +422,108 @@ const AU = {
   },
   stamp(){ this.tone(80, 40, 0.2, 'square', 0.16); this.noise(0.12, 0.12, 400); },
   fireball(){ this.tone(100, 60, 0.25, 'sawtooth', 0.12); this.noise(0.15, 0.1, 500); },
-  // -- music: slow D-minor saga loop --
-  LEAD: [294, 0, 0, 349, 440, 0, 349, 294, 262, 0, 0, 294, 0, 0, 220, 0,
-         294, 0, 0, 349, 440, 0, 523, 440, 466, 0, 440, 349, 294, 0, 0, 0],
-  BASS: [73, 73, 73, 73, 58, 58, 58, 58, 49, 49, 49, 49, 55, 55, 55, 55,
-         73, 73, 73, 73, 58, 58, 58, 58, 49, 49, 49, 49, 55, 55, 55, 55],
+  // -- adaptive score (designed with an 8/16-bit chiptune consult) --
+  // Base loop is the song's identity; each transformation stage ADDS a layer.
+  // SPARK: a heartbeat. KINDLED: rolling Vampire-Killer arp. ABLAZE: octave
+  // gallop + drums -- the kick lands where the heartbeat lived. Act II moves
+  // the whole song to G minor over a lament bass: the same world, gone cold.
+  theme: 'act1', pendingTheme: null, liveStage: 0,
+  THEMES: {
+    act1: {
+      lead: [294, 0, 0, 349, 440, 0, 349, 294, 262, 0, 0, 294, 0, 0, 220, 0,
+             294, 0, 0, 349, 440, 0, 523, 440, 466, 0, 440, 349, 294, 0, 0, 0],
+      bass: [73, 0, 0, 0, 0, 0, 0, 0, 58, 0, 0, 0, 0, 0, 0, 0,
+             49, 0, 0, 0, 0, 0, 0, 0, 55, 0, 0, 0, 0, 0, 0, 0],
+      bell: null,
+      layers: [
+        { perc: [{dur: 0.1, hp: 150, vol: [0.09,0.05,0,0, 0.06,0.035,0,0, 0.09,0.05,0,0, 0.06,0.035,0,0,
+                                            0.09,0.05,0,0, 0.06,0.035,0,0, 0.09,0.05,0,0, 0.06,0.035,0,0]}],
+          notes: [{wave:'sine', gain:0.045, decay:1.5, len:32,
+            arr: [146.83,0,0,0, 146.83,0,0,0, 116.54,0,0,0, 116.54,0,0,0,
+                  98,0,0,0, 98,0,0,0, 110,0,0,0, 110,0,0,0]}] },
+        { notes: [{wave:'square', gain:0.032, decay:0.9, len:64,
+            arr: [293.66,349.23,440,587.33,440,349.23,293.66,349.23,440,587.33,440,349.23,293.66,349.23,440,587.33,
+                  233.08,293.66,349.23,466.16,349.23,293.66,233.08,293.66,349.23,466.16,349.23,293.66,233.08,293.66,349.23,466.16,
+                  196,233.08,293.66,392,293.66,233.08,196,233.08,293.66,392,293.66,233.08,196,233.08,293.66,392,
+                  220,277.18,329.63,440,329.63,277.18,220,277.18,329.63,440,329.63,277.18,220,277.18,329.63,440]}] },
+        { notes: [{wave:'square', gain:0.022, decay:0.7, len:64,
+            arr: [587.33,587.33,1174.66,587.33, 587.33,587.33,1174.66,587.33, 587.33,587.33,1174.66,587.33, 587.33,587.33,1174.66,587.33,
+                  466.16,466.16,932.33,466.16, 466.16,466.16,932.33,466.16, 466.16,466.16,932.33,466.16, 466.16,466.16,932.33,466.16,
+                  392,392,783.99,392, 392,392,783.99,392, 392,392,783.99,392, 392,392,783.99,392,
+                  440,440,880,440, 440,440,880,440, 440,440,880,440, 440,440,880,440]}],
+          perc: [
+            {dur: 0.1, hp: 100, vol: [0.13,0,0,0, 0.13,0,0,0.10, 0.13,0,0,0, 0.13,0,0,0.10,
+                                       0.13,0,0,0, 0.13,0,0,0.10, 0.13,0,0,0, 0.13,0,0,0]},
+            {dur: 0.12, hp: 1400, vol: [0,0,0.11,0, 0,0,0.11,0, 0,0,0.11,0, 0,0,0.11,0,
+                                         0,0,0.11,0, 0,0,0.11,0, 0,0,0.11,0, 0,0.08,0.11,0.13]},
+            {dur: 0.03, hp: 6500, vol: [0.045,0.025,0.045,0.025, 0.045,0.025,0.045,0.025, 0.045,0.025,0.045,0.025, 0.045,0.025,0.045,0.025,
+                                         0.045,0.025,0.045,0.025, 0.045,0.025,0.045,0.025, 0.045,0.025,0.045,0.025, 0.045,0.025,0.045,0.025]}] },
+      ],
+    },
+    act2: {
+      lead: [196, 0, 0, 233.08, 293.66, 0, 0, 196, 174.61, 0, 0, 196, 0, 0, 146.83, 0,
+             196, 0, 0, 233.08, 293.66, 0, 349.23, 293.66, 311.13, 0, 293.66, 233.08, 196, 0, 0, 0],
+      bass: [49, 0, 0, 0, 0, 0, 0, 0, 43.65, 0, 0, 0, 0, 0, 0, 0,
+             38.89, 0, 0, 0, 0, 0, 0, 0, 73.42, 0, 0, 0, 0, 0, 0, 0],
+      bell: [0,0,0,0, 0,0,783.99,0, 0,0,0,0, 0,0,0,0,
+             0,0,0,0, 0,0,587.33,0, 0,0,0,0, 0,0,0,0],
+      layers: [
+        { perc: [{dur: 0.1, hp: 120, vol: [0.07,0.04,0,0, 0,0,0,0, 0.07,0.04,0,0, 0,0,0,0,
+                                            0.07,0.04,0,0, 0,0,0,0, 0.07,0.04,0,0, 0,0,0,0]}],
+          notes: [{wave:'sine', gain:0.04, decay:1.5, len:32,
+            arr: [98,0,0,0, 98,0,0,0, 87.31,0,0,0, 87.31,0,0,0,
+                  77.78,0,0,0, 77.78,0,0,0, 146.83,0,0,0, 146.83,0,0,0]}] },
+        { notes: [{wave:'triangle', gain:0.05, decay:0.9, len:64,
+            arr: [196,233.08,293.66,392,293.66,233.08,196,233.08,293.66,392,293.66,233.08,196,233.08,293.66,392,
+                  174.61,220,261.63,349.23,261.63,220,174.61,220,261.63,349.23,261.63,220,174.61,220,261.63,349.23,
+                  155.56,196,233.08,311.13,233.08,196,155.56,196,233.08,311.13,233.08,196,155.56,196,233.08,311.13,
+                  146.83,185,220,293.66,220,185,146.83,185,220,293.66,220,185,146.83,185,220,293.66]}] },
+        { notes: [{wave:'square', gain:0.02, decay:0.7, len:64,
+            arr: [392,392,783.99,392, 392,392,783.99,392, 392,392,783.99,392, 392,392,783.99,392,
+                  349.23,349.23,698.46,349.23, 349.23,349.23,698.46,349.23, 349.23,349.23,698.46,349.23, 349.23,349.23,698.46,349.23,
+                  311.13,311.13,622.25,311.13, 311.13,311.13,622.25,311.13, 311.13,311.13,622.25,311.13, 311.13,311.13,622.25,311.13,
+                  293.66,293.66,587.33,293.66, 293.66,293.66,587.33,293.66, 293.66,293.66,587.33,293.66, 293.66,293.66,587.33,293.66]}],
+          perc: [
+            {dur: 0.1, hp: 90, vol: [0.13,0,0,0, 0.13,0,0,0.10, 0.13,0,0,0, 0.13,0,0,0.10,
+                                      0.13,0,0,0, 0.13,0,0,0.10, 0.13,0,0,0, 0.13,0,0,0]},
+            {dur: 0.14, hp: 900, vol: [0,0,0.11,0, 0,0,0.11,0, 0,0,0.11,0, 0,0,0.11,0,
+                                        0,0,0.11,0, 0,0,0.11,0, 0,0,0.11,0, 0,0.08,0.11,0.13]},
+            {dur: 0.03, hp: 6500, vol: [0,0.03,0,0.03, 0,0.03,0,0.03, 0,0.03,0,0.03, 0,0.03,0,0.03,
+                                         0,0.03,0,0.03, 0,0.03,0,0.03, 0,0.03,0,0.03, 0,0.03,0,0.03]}] },
+      ],
+    },
+  },
+  setTheme(name){ this.pendingTheme = name; },
+  mnote(f, wave, vol, t, dur){ // music voice through mGain, soft attack kills the click
+    if (!this.ctx || f <= 0) return;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = wave; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(this.mGain); o.start(t); o.stop(t + dur + 0.03);
+  },
+  mlead(f, t, dur){ // detuned pair + sine an octave down: warmth on the cheap
+    this.mnote(f, 'triangle', 0.035, t, dur);
+    if (!this.ctx) return;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = 'triangle'; o.frequency.value = f; o.detune.value = 7;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.035, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(this.mGain); o.start(t); o.stop(t + dur + 0.03);
+    this.mnote(f / 2, 'sine', 0.02, t, dur);
+  },
+  mnoise(dur, vol, hp, t){ // percussion routed through mGain so it ducks with the song
+    if (!this.ctx) return;
+    const n = this.ctx.sampleRate * dur, buf = this.ctx.createBuffer(1, n, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const s = this.ctx.createBufferSource(); s.buffer = buf;
+    const f = this.ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp;
+    const g = this.ctx.createGain(); g.gain.value = vol;
+    s.connect(f); f.connect(g); g.connect(this.mGain); s.start(t);
+  },
   startMusic(){
     if (this.mTimer || !this.ctx) return;
     const stepDur = 60 / 96 / 2;
@@ -433,20 +531,27 @@ const AU = {
       if (!this.music) return;
       const t = this.ctx.currentTime + 0.05;
       const i = this.step % 32;
-      const lead = this.LEAD[i], bass = this.BASS[i];
-      if (lead){
-        const o = this.ctx.createOscillator(), g = this.ctx.createGain();
-        o.type = 'triangle'; o.frequency.value = lead;
-        g.gain.setValueAtTime(0.07, t);
-        g.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 1.8);
-        o.connect(g); g.connect(this.mGain); o.start(t); o.stop(t + stepDur * 2);
+      if (i === 0){ // arrangement changes only land on the downbeat
+        if (this.pendingTheme){ this.theme = this.pendingTheme; this.pendingTheme = null; }
+        this.liveStage = Math.min(stage, 3);
       }
-      if (i % 8 === 0){
-        const o = this.ctx.createOscillator(), g = this.ctx.createGain();
-        o.type = 'triangle'; o.frequency.value = bass;
-        g.gain.setValueAtTime(0.13, t);
-        g.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 7);
-        o.connect(g); g.connect(this.mGain); o.start(t); o.stop(t + stepDur * 8);
+      const th = this.THEMES[this.theme];
+      if (th.lead[i]) this.mlead(th.lead[i], t, stepDur * 1.8);
+      if (i % 8 === 0 && th.bass[i]) this.mnote(th.bass[i], 'triangle', 0.13, t, stepDur * 7);
+      if (th.bell && th.bell[i]) this.mnote(th.bell[i], 'sine', 0.05, t, stepDur * 4);
+      for (let s = 0; s < this.liveStage; s++){
+        const L = th.layers[s];
+        if (!L) continue;
+        for (const v of (L.notes || [])){
+          if (v.len === 64){
+            const a = v.arr[(i * 2) % 64], b = v.arr[(i * 2 + 1) % 64];
+            if (a) this.mnote(a, v.wave, v.gain, t, stepDur * v.decay / 2 + 0.02);
+            if (b) this.mnote(b, v.wave, v.gain, t + stepDur / 2, stepDur * v.decay / 2 + 0.02);
+          } else if (v.arr[i]) this.mnote(v.arr[i], v.wave, v.gain, t, stepDur * v.decay);
+        }
+        for (const pc of (L.perc || [])){
+          if (pc.vol[i]) this.mnoise(pc.vol[i] >= 0.09 ? pc.dur : pc.dur * 0.7, pc.vol[i], pc.hp, t);
+        }
       }
       this.step++;
     }, stepDur * 1000);
@@ -604,9 +709,6 @@ const SEGS = [
   '##########'+'##########'+'##########',
 ],
 ];
-const ROWS = SEGS[0].map((_, r) => SEGS.map(s => s[r]).join(''));
-const LH = ROWS.length, LW = ROWS[0].length;
-for (const r of ROWS) if (r.length !== LW) throw new Error('level row width mismatch');
 const GY = 14 * TS; // ground surface
 
 // set dressing, keyed to the beat sheet
@@ -621,7 +723,7 @@ const DECOR = [
 //======================================================================
 // WORLD STATE
 //======================================================================
-const grid = ROWS.map(r => r.split(''));
+let act = 0, ROWS, LH, LW, grid;
 let state = 'title', frame = 0, playTime = 0, paused = false;
 let cam = {x: 0, shake: 0};
 let hitstop = 0, timeScale = 1, pendingSteps = 0;
@@ -641,15 +743,29 @@ let secrets = 0, firstCoin = false, loreSeen = {};
 let cardQueue = [];
 try { best = JSON.parse(localStorage.getItem('emberward') || '{}'); } catch (e) {}
 
-const enemySpawns = [], itemSpawns = [], braziers = [];
-for (let y = 0; y < LH; y++) for (let x = 0; x < LW; x++){
-  const ch = grid[y][x], wx = x * TS, wy = y * TS;
-  if ('cefSKLHBaWCP*z'.includes(ch)) grid[y][x] = '.';
-  if (ch === 'P') spawnPt = {x: wx + 5, y: wy - 30};
-  else if (ch === '*') checkpoints.push({x: wx, y: wy, lit: false});
-  else if (ch === 'z') braziers.push({x: wx, y: wy, lit: false});
-  else if ('cefSK'.includes(ch)) itemSpawns.push({x: wx, y: wy, kind: ch});
-  else if ('LHBaWC'.includes(ch)) enemySpawns.push({x: wx, y: wy, kind: ch});
+let enemySpawns = [], itemSpawns = [], braziers = [], triggers = [], censers = [];
+let crumbled = [], crumbling = []; // '%' tiles eaten this attempt; restored on reset
+function loadAct(n){
+  act = n;
+  const A = ACTS[n];
+  ROWS = A.segs[0].map((_, r) => A.segs.map(s => s[r]).join(''));
+  LH = ROWS.length; LW = ROWS[0].length;
+  for (const r of ROWS) if (r.length !== LW) throw new Error('level row width mismatch');
+  grid = ROWS.map(r => r.split(''));
+  enemySpawns = []; itemSpawns = []; braziers = []; checkpoints = []; crumbled = [];
+  spawnPt = {x: 64, y: 380};
+  for (let y = 0; y < LH; y++) for (let x = 0; x < LW; x++){
+    const ch = grid[y][x], wx = x * TS, wy = y * TS;
+    if ('cefSKLHBaWCP*z'.includes(ch)) grid[y][x] = '.';
+    if (ch === 'P') spawnPt = {x: wx + 5, y: wy - 30};
+    else if (ch === '*') checkpoints.push({x: wx, y: wy, lit: false});
+    else if (ch === 'z') braziers.push({x: wx, y: wy, lit: false});
+    else if ('cefSK'.includes(ch)) itemSpawns.push({x: wx, y: wy, kind: ch});
+    else if ('LHBaWC'.includes(ch)) enemySpawns.push({x: wx, y: wy, kind: ch});
+  }
+  triggers = (A.triggers || []).map(tr => ({...tr, fired: false}));
+  censers = (A.censers || []).map(cn => ({x: cn.c * TS, y: cn.r * TS, len: cn.len, phase: cn.c}));
+  AU.setTheme(A.theme);
 }
 function surfaceY(col){
   for (let r = 0; r < LH; r++) if (grid[r] && grid[r][col] === '#') return r * TS;
@@ -666,6 +782,144 @@ const HINTS = [
   {x: 186 * TS, y: 340, txt: 'PLUNGE BOUNCES OFF FOES'},
 ];
 
+//======================================================================
+// ACT II -- THE COLD HEARTH (8 screens x 30 cols, 17 rows)
+// The dead castle at night. '%' = collapsing floor. 'K' = the Warden's Coal.
+// 'W' cinder wraith (air)  'C' ember cultist  'a' ash imp
+//======================================================================
+const SEGS2 = [
+[ // 1: the gatehouse, doors torn OUTWARD. rubble-climb, levies on the stair.
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10,
+  E10+'......cc..'+E10,
+  E10+'......==..'+E10,
+  E10+E10+'......L...',
+  '........c.'+'..L.......'+'...####...',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+],
+[ // 2: the great hall, roofless. beam-hops, wraiths swooping between them.
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10,
+  E10+'....cc....'+E10,
+  E10+'....==....'+E10,
+  '......cc..'+E10+'....cc....',
+  '......==..'+'..W.......'+'....==....',
+  E10+E10+E10,
+  '...cc.....'+'......==..'+'..W.......',
+  '...==.....'+E10+E10,
+  E10+E10+E10,
+  '.....L....'+'....L.....'+'......L...',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+],
+[ // 3: the armory, stripped bare. tight corridor, brigands, collapsing floor.
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10,
+  '##########'+'##########'+'##########',
+  E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10,
+  E10+E10+'........c.',
+  '...B......'+'......B...'+E10,
+  '#####%%%%%'+'%%%%######'+'##########',
+  '#####.....'+'....######'+'##########',
+  '##########'+'##########'+'##########',
+],
+[ // 4: the spiral stair. zigzag climb through arrow-slit light, wraiths diving.
+  E10+E10+E10, E10+E10+E10,
+  E10+'.....*....'+E10,
+  E10+'....====..'+E10,
+  E10+E10+E10,
+  E10+E10+'...cc.....',
+  '.......cc.'+E10+'...====...',
+  '.......==='+E10+E10,
+  E10+'..W.......'+E10,
+  E10+'......===='+E10,
+  '....===...'+E10+'.....W....',
+  E10+E10+E10,
+  '..===.....'+E10+'........cc',
+  E10+'.===......'+E10,
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+],
+[ // 5: THE COLD HEARTH. silent. the cradle takes the lantern; the Coal takes the sword.
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+'....z.....',
+  E10+E10+'...====...',
+  E10+'....K..z..'+E10,
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+],
+[ // 6: soot graffiti. cultists lob fire from the ledges; the fireball answers.
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+'...C......'+E10,
+  E10+'..====....'+E10,
+  '....C.....'+E10+'.....C....',
+  '...====...'+E10+'....====..',
+  E10+E10+E10,
+  '.......L..'+'....a.....'+'.L........',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+],
+[ // 7: the throne room, dustless. swinging censers over the pits; ambush wave.
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10,
+  '...L.a....'+'..L..L....'+'..a..L....',
+  '#####..###'+'###..#####'+'##########',
+  '#####..###'+'###..#####'+'##########',
+  '#####..###'+'###..#####'+'##########',
+],
+[ // 8: the broken east wall. long descent toward the camp's glow. KINDLED lands here.
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  E10+E10+E10, E10+E10+E10, E10+E10+E10, E10+E10+E10,
+  '...cc.....'+E10+E10,
+  '..#####...'+E10+E10,
+  E10+'..cc......'+E10,
+  '.B........'+'.#####....'+E10,
+  E10+E10+'.....*....',
+  '.....C....'+'.....W....'+'..L.......',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+  '##########'+'##########'+'##########',
+],
+];
+// set dressing for the dead castle
+const DECOR2 = [
+  {t:'gate', c:4}, {t:'rubble', c:15}, {t:'hall', c:34}, {t:'hall', c:44}, {t:'rubble', c:53},
+  {t:'rack', c:63}, {t:'rack', c:76}, {t:'stairwin', c:95}, {t:'stairwin', c:103}, {t:'stairwin', c:111},
+  {t:'hearth', c:128}, {t:'graffiti', c:153}, {t:'graffiti', c:167},
+  {t:'throne', c:203}, {t:'rubble', c:214}, {t:'breach', c:227},
+];
+const HINTS2 = [
+  {x: 137.5 * TS, y: 360, txt: 'C — HURL FIRE'},
+  {x: 143 * TS, y: 320, txt: 'SOME FIRES SIT PAST THE SWORD'},
+];
+
+const ACTS = [
+  {name:'ACT I — THE ASH HARVEST', clear:'ACT I CLEAR — THE ASH HARVEST',
+   segs:SEGS, decor:DECOR, hints:HINTS, look:'ember', theme:'act1', endCol:238,
+   quote:['The wind carried it east.', 'So he walked east.']},
+  {name:'ACT II — THE COLD HEARTH', clear:'ACT II CLEAR — THE COLD HEARTH',
+   segs:SEGS2, decor:DECOR2, hints:HINTS2, look:'cold', theme:'act2', endCol:238,
+   censers:[{c:186, r:8, len:118}, {c:194, r:8, len:118}],
+   triggers:[{col:125, cards:[
+     {lines:['The lantern fits the cradle.', 'It was never filled.'], dur:230},
+     {lines:['A Warden fills his heir’s lantern.', 'Selwyn never let his watch end.'], dur:230},
+   ]}],
+   quote:['Every hearth in Caldermark was lit', 'from one fire. He knew where it lived.']},
+];
+
 function makeEnemy(sp){
   const v = 0.8 + hash(sp.x, sp.y * 7) * 0.5; // per-beast tempo: no two patrol alike
   if (sp.kind === 'L') return {kind:'L', x:sp.x + 4, y:sp.y, w:24, h:56, vx:-0.9 * v, vy:0, dir:-1, hp:1, t:0, flinch:0, st:'patrol', stT:0, spd:v, dead:false};
@@ -675,19 +929,26 @@ function makeEnemy(sp){
   if (sp.kind === 'C') return {kind:'C', x:sp.x + 2, y:sp.y, w:26, h:58, vx:-0.4 * v, vy:0, dir:-1, hp:2, t:0, flinch:0, st:'walk', stT:0, spd:v, cd:60, dead:false};
   return {kind:'B', x:sp.x + 2, y:sp.y, w:30, h:60, vx:-0.5 * v, vy:0, dir:-1, hp:3, t:0, flinch:0, st:'walk', stT:0, spd:v, cd:120, dead:false};
 }
-function resetLevel(fromCheckpoint){
+function resetLevel(fromCheckpoint, keepRun){
   enemies = enemySpawns.map(makeEnemy);
   particles = []; popups = []; corpses = []; fireballs = []; shots = []; toasts = [];
   chain = 0; lastKillF = -999;
+  for (const cr of crumbled) grid[cr.ty][cr.tx] = '%';   // the floor re-knits
+  crumbled = []; crumbling = [];
   if (!fromCheckpoint){
     items = itemSpawns.map(s => ({...s, taken:false, t: hash(s.x, s.y) * 9}));
     checkpoints.forEach(c => c.lit = false);
-    xp = 0; coins = 0; lives = 3; killCount = 0; deaths = 0; playTime = 0;
-    stage = 0; hasCoal = false; hasSteel = false; maxHearts = 3; embers = 0; hitsBanked = 0;
-    critPity = 0; critSuppress = 0; bestChain = 0; grade = null; transform = null;
-    secrets = 0; firstCoin = false; loreSeen = {}; cardQueue = [];
     braziers.forEach(b => b.lit = false);
+    killCount = 0; deaths = 0; playTime = 0;
+    bestChain = 0; grade = null; transform = null;
+    secrets = 0; cardQueue = [];
     killTotal = enemySpawns.length;
+    if (!keepRun){ // a fresh run, not an act transition: progression resets too
+      xp = 0; coins = 0; lives = 3;
+      stage = 0; hasCoal = false; hasSteel = false; maxHearts = 3; embers = 0; hitsBanked = 0;
+      critPity = 0; critSuppress = 0;
+      firstCoin = false; loreSeen = {};
+    }
   }
   const lit = [...checkpoints].reverse().find(c => c.lit);
   const at = (fromCheckpoint && lit) ? {x: lit.x, y: lit.y - 40} : spawnPt;
@@ -703,7 +964,7 @@ function resetLevel(fromCheckpoint){
 // PHYSICS
 //======================================================================
 const tileAt = (tx, ty) => (tx < 0 || tx >= LW) ? '#' : (ty < 0 || ty >= LH) ? '.' : grid[ty][tx];
-const isSolid = (tx, ty) => tileAt(tx, ty) === '#';
+const isSolid = (tx, ty) => { const t = tileAt(tx, ty); return t === '#' || t === '%'; };
 function moveX(e, dx){
   e.x += dx;
   const t0 = Math.floor(e.y / TS), t1 = Math.floor((e.y + e.h - 1) / TS);
@@ -724,7 +985,7 @@ function moveY(e, dy){
     const ty = Math.floor((e.y + e.h) / TS);
     for (let tx = c0; tx <= c1; tx++){
       const t = tileAt(tx, ty);
-      if (t === '#' || (t === '=' && prevBottom <= ty * TS + 0.5)){
+      if (t === '#' || t === '%' || (t === '=' && prevBottom <= ty * TS + 0.5)){
         e.y = ty * TS - e.h - 0.01; e.vy = 0; return 'floor';
       }
     }
@@ -959,9 +1220,47 @@ function updatePlayer(){
       popup(b.x + 16, b.y - 12, 'SECRET  ' + secrets + '/' + braziers.length, '#8ae2ff', true);
     }
   }
+  // collapsing floor: standing on '%' wakes it
+  if (p.onGround){
+    const fy = Math.floor((p.y + p.h + 2) / TS);
+    for (let tx = Math.floor(p.x / TS); tx <= Math.floor((p.x + p.w - 1) / TS); tx++){
+      if (tileAt(tx, fy) === '%' && !crumbling.some(cr => cr.tx === tx && cr.ty === fy)){
+        crumbling.push({tx, ty: fy, t: 0});
+        AU.noise(0.08, 0.08, 260);
+      }
+    }
+  }
+  // swinging censers: kept fire on a chain, still hungry
+  for (const cn of censers){
+    const a = Math.sin(frame * 0.024 + cn.phase) * 1.05;
+    const bx = cn.x + Math.sin(a) * cn.len, by = cn.y + Math.cos(a) * cn.len;
+    if (!p.dead && overlap({x: bx - 13, y: by - 13, w: 26, h: 26}, p)) hurtPlayer(bx, 1);
+  }
+  // story beats fire once, where the ground remembers
+  for (const tr of triggers){
+    if (!tr.fired && p.x > tr.col * TS){
+      tr.fired = true;
+      const cs = tr.cards.map(cd => ({...cd, t: 0, next: 'play'}));
+      card = cs.shift(); cardQueue.push(...cs);
+      state = 'card';
+    }
+  }
   // act end
-  if (p.x > 238 * TS && state === 'play'){
+  if (p.x > ACTS[act].endCol * TS && state === 'play'){
     state = 'grade'; computeGrade(); AU.stamp(); saveBest();
+  }
+}
+function updateCrumble(){
+  for (let i = crumbling.length - 1; i >= 0; i--){
+    const cr = crumbling[i];
+    cr.t++;
+    if (cr.t === 20){
+      grid[cr.ty][cr.tx] = '.';
+      crumbled.push({tx: cr.tx, ty: cr.ty});
+      burst(cr.tx * TS + 16, cr.ty * TS + 8, '#4a5160', 8, 3);
+      AU.noise(0.12, 0.1, 200);
+      crumbling.splice(i, 1);
+    }
   }
 }
 function updateEnemies(){
@@ -1138,6 +1437,14 @@ function updateEnemies(){
     burst(f.x + 6, f.y + 6, '#ffb347', 1, 1, 0);
     const tx = Math.floor((f.x + 6) / TS), ty = Math.floor((f.y + 6) / TS);
     let dead = isSolid(tx, ty) || f.t > 160;
+    for (const b of braziers){ // thrown fire lights what the sword can't reach
+      if (!b.lit && overlap(f, {x: b.x - 4, y: b.y - 6, w: 40, h: 44})){
+        b.lit = true; secrets++; xp += 25; dead = true;
+        AU.tended(); toast('A hidden brazier burns again.');
+        burst(b.x + 16, b.y + 8, '#ffb347', 12, 3, 0.02);
+        popup(b.x + 16, b.y - 12, 'SECRET  ' + secrets + '/' + braziers.length, '#8ae2ff', true);
+      }
+    }
     for (const e of enemies){
       if (e.dead || !overlap(f, e)) continue;
       hurtEnemy(e, 2, false, f.x);
@@ -1199,6 +1506,14 @@ function updateItems(){
         card = {title: 'A HEARTHSTONE', icon: 'S',
           lines: ['A hearthstone, still warm. Keep it.', '+1 HEART OF WARMTH'],
           t: 0, dur: 240, next: 'play'};
+        state = 'card';
+      }
+      else if (it.kind === 'K'){
+        hasCoal = true; embers = maxEmbers; hitsBanked = 0;
+        AU.bigPickup(); burst(it.x + 16, it.y + 14, '#ffb347', 16, 4);
+        card = {title: 'THE WARDEN’S COAL', icon: 'K',
+          lines: ['A kept coal. Brand banks the heat.', 'C — HURL FIRE'],
+          t: 0, dur: 260, next: 'play'};
         state = 'card';
       }
     }
@@ -1294,6 +1609,25 @@ function saveBest(){
 // DRAWING -- the Ash Harvest
 //======================================================================
 function drawSky(){
+  if (ACTS[act].look === 'cold'){ // Act II: the dead castle under a bone moon
+    const g = ctx.createLinearGradient(0, 0, 0, VH);
+    g.addColorStop(0, '#05070d'); g.addColorStop(0.5, '#0c1220');
+    g.addColorStop(0.85, '#16203a'); g.addColorStop(1, '#1e2c4a');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
+    ctx.fillStyle = 'rgba(220,230,255,.7)';
+    for (let i = 0; i < 60; i++){
+      ctx.globalAlpha = 0.2 + hash(i, 3) * 0.6;
+      ctx.fillRect((hash(i, 7) * VW * 2 - cam.x * 0.04 + VW * 4) % VW, hash(i, 13) * VH * 0.6, 2, 2);
+    }
+    ctx.globalAlpha = 1;
+    const mx = VW * 0.32 - cam.x * 0.012, my = VH * 0.28, mr = 46;
+    ctx.fillStyle = 'rgba(200,214,240,.12)'; ctx.beginPath(); ctx.arc(mx, my, mr * 2, 0, 7); ctx.fill();
+    ctx.fillStyle = '#c8d2e8'; ctx.beginPath(); ctx.arc(mx, my, mr, 0, 7); ctx.fill();
+    ctx.fillStyle = '#a8b4cc';
+    ctx.beginPath(); ctx.arc(mx - 12, my - 8, 8, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(mx + 14, my + 12, 5, 0, 7); ctx.fill();
+    return;
+  }
   const g = ctx.createLinearGradient(0, 0, 0, VH);
   g.addColorStop(0, '#1a0f0e'); g.addColorStop(0.42, '#4a1f14');
   g.addColorStop(0.72, '#8a3d1e'); g.addColorStop(1, '#d4763a');
@@ -1349,6 +1683,40 @@ function drawRuin(sx, base, color, sd){ // broken castle silhouette
   ctx.fillRect(sx + 7, base - h1 + 12, 8, 12);               // dark window
 }
 function drawParallax(){
+  if (ACTS[act].look === 'cold'){
+    ridge(0.18, VH * 0.70, 70, 0.0023, 40, 0.006, '#0c1120');
+    for (const wx of [1200, 4800, 9400]){
+      const sx = wx * 0.18 - cam.x * 0.18 + 160;
+      if (sx > -140 && sx < VW + 60) drawRuin(sx, VH * 0.6 + Math.sin(wx) * 8, '#0c1120', wx);
+    }
+    ridge(0.4, VH * 0.83, 46, 0.004, 26, 0.01, '#131a2e');
+    for (const wx of [2200, 6800, 10600]){
+      const sx = wx * 0.4 - cam.x * 0.4 - 400;
+      if (sx > -140 && sx < VW + 60) drawRuin(sx, VH * 0.83, '#131a2e', wx + 3);
+    }
+    ridge(0.68, VH * 0.99, 36, 0.008, 20, 0.017, '#1b2438');
+    const span = 300;                                       // broken pillars, close in
+    for (let i = -1; i < VW / span + 2; i++){
+      const wx = (Math.floor((cam.x * 0.68) / span) + i) * span + 80;
+      const sx = wx - cam.x * 0.68;
+      const ph = VH * (0.34 + hash(Math.floor(wx / span), 4) * 0.14);
+      ctx.fillStyle = '#1b2438';
+      ctx.fillRect(sx, VH - ph, 22, ph);
+      ctx.fillRect(sx - 6, VH - ph, 34, 10);
+    }
+    for (let i = 0; i < 3; i++){                            // cold fog
+      ctx.fillStyle = 'rgba(90,110,150,' + (0.04 + i * 0.015) + ')';
+      const mxx = ((hash(i, 17) * 1800 + frame * (0.1 + i * 0.04) - cam.x * (0.5 + i * 0.1)) % (VW + 500) + VW + 500) % (VW + 500) - 250;
+      ctx.beginPath(); ctx.ellipse(mxx, VH - 70 - i * 26, 220 + i * 40, 16, 0, 0, 7); ctx.fill();
+    }
+    for (let i = 0; i < 18; i++){                           // ash falls like snow, still blowing east
+      const ex = ((hash(i, 31) * 3000 + frame * (0.3 + hash(i, 5) * 0.4) - cam.x * 0.8) % (VW + 60) + VW + 60) % (VW + 60) - 30;
+      const ey = (hash(i, 37) * VH + frame * (0.4 + hash(i, 11) * 0.5)) % VH;
+      ctx.fillStyle = 'rgba(190,200,220,' + (0.15 + hash(i, 8) * 0.3) + ')';
+      ctx.fillRect(ex, ey, 2, 2);
+    }
+    return;
+  }
   ridge(0.18, VH * 0.72, 80, 0.0023, 50, 0.006, '#241210');
   // world-anchored ruined keeps on the far ridge
   for (const wx of [900, 5400, 10200]){
@@ -1397,37 +1765,55 @@ function drawParallax(){
     ctx.fillRect(ex, ey, 2, 2);
   }
 }
+const TILECOL = {
+  ember: {base:'#3a2a1c', dk:'#281c10', lt:'#54402a', top:'#4f4426', topHi:'#6b5a2e', beam:'#54402a', beamHi:'#8a6a3a', beamPeg:'#2a1c10'},
+  cold:  {base:'#262b38', dk:'#1b202c', lt:'#343b4e', top:'#3c4458', topHi:'#525c74', beam:'#333a4e', beamHi:'#525c74', beamPeg:'#171b26'},
+};
 function drawTiles(){
+  const C = TILECOL[ACTS[act].look];
   const x0 = Math.max(0, Math.floor(cam.x / TS)), x1 = Math.min(LW - 1, Math.ceil((cam.x + VW) / TS));
   for (let ty = 0; ty < LH; ty++) for (let tx = x0; tx <= x1; tx++){
-    const t = grid[ty][tx], sx = tx * TS - cam.x, sy = ty * TS;
-    if (t === '#'){
-      const top = tileAt(tx, ty - 1) !== '#';
-      ctx.fillStyle = '#3a2a1c'; ctx.fillRect(sx, sy, TS, TS);
+    const t = grid[ty][tx];
+    let sx = tx * TS - cam.x, sy = ty * TS;
+    if (t === '#' || t === '%'){
+      if (t === '%'){ // waking floor trembles before it goes
+        const cr = crumbling.find(c => c.tx === tx && c.ty === ty);
+        if (cr){ sx += (hash(cr.t, tx) - 0.5) * 4; sy += (hash(tx, cr.t) - 0.5) * 3; }
+      }
+      const above = tileAt(tx, ty - 1);
+      const top = above !== '#' && above !== '%';
+      ctx.fillStyle = C.base; ctx.fillRect(sx, sy, TS, TS);
       for (let i = 0; i < 6; i++){
-        ctx.fillStyle = hash(tx * 7 + i, ty) > 0.5 ? '#281c10' : '#54402a';
+        ctx.fillStyle = hash(tx * 7 + i, ty) > 0.5 ? C.dk : C.lt;
         ctx.fillRect(sx + 2 + hash(tx + i, ty * 3) * 26, sy + 2 + hash(tx * 3, ty + i) * 26, 3 + hash(i, tx) * 3, 2);
       }
-      ctx.fillStyle = '#281c10';
+      ctx.fillStyle = C.dk;
       ctx.fillRect(sx, sy + 31, TS, 1); ctx.fillRect(sx + (ty % 2 ? 0 : 16), sy, 1, TS);
       if (top){
-        ctx.fillStyle = '#4f4426'; ctx.fillRect(sx, sy, TS, 7);
-        ctx.fillStyle = '#6b5a2e'; ctx.fillRect(sx, sy, TS, 2);
+        ctx.fillStyle = C.top; ctx.fillRect(sx, sy, TS, 7);
+        ctx.fillStyle = C.topHi; ctx.fillRect(sx, sy, TS, 2);
         ctx.fillRect(sx + (hash(tx, 1) * 22 | 0), sy - 4, 2, 4);
         ctx.fillRect(sx + 8 + (hash(tx, 2) * 18 | 0), sy - 3, 2, 3);
         if (hash(tx, 5) > 0.6) ctx.fillRect(sx + 18 + (hash(tx, 6) * 8 | 0), sy - 5, 3, 5);
-        // charred wheat stubble on the farm road (west half of the act)
-        if (tx < 120 && hash(tx, 11) > 0.45){
+        // charred wheat stubble on the farm road (west half of Act I)
+        if (act === 0 && tx < 120 && hash(tx, 11) > 0.45){
           ctx.fillStyle = '#241812';
           ctx.fillRect(sx + 4 + (hash(tx, 12) * 20 | 0), sy - 7, 2, 7);
           ctx.fillRect(sx + 12 + (hash(tx, 13) * 14 | 0), sy - 5, 2, 5);
         }
       }
+      if (t === '%'){ // hairline fractures give the trap away
+        ctx.strokeStyle = 'rgba(8,10,16,.8)'; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(sx + 6, sy + 4); ctx.lineTo(sx + 14, sy + 14); ctx.lineTo(sx + 10, sy + 26);
+        ctx.moveTo(sx + 22, sy + 2); ctx.lineTo(sx + 19, sy + 16); ctx.lineTo(sx + 26, sy + 28);
+        ctx.stroke();
+      }
     } else if (t === '='){
       ctx.fillStyle = 'rgba(12,6,4,.4)'; ctx.fillRect(sx, sy + 12, TS, 4);  // drop shadow: reads as foreground
-      ctx.fillStyle = '#54402a'; ctx.fillRect(sx, sy, TS, 12);
-      ctx.fillStyle = '#8a6a3a'; ctx.fillRect(sx, sy, TS, 4);
-      ctx.fillStyle = '#2a1c10'; ctx.fillRect(sx + 2, sy + 8, 3, 3); ctx.fillRect(sx + TS - 6, sy + 8, 3, 3);
+      ctx.fillStyle = C.beam; ctx.fillRect(sx, sy, TS, 12);
+      ctx.fillStyle = C.beamHi; ctx.fillRect(sx, sy, TS, 4);
+      ctx.fillStyle = C.beamPeg; ctx.fillRect(sx + 2, sy + 8, 3, 3); ctx.fillRect(sx + TS - 6, sy + 8, 3, 3);
     }
   }
 }
@@ -1444,7 +1830,7 @@ function flame(sx, sy, size, sd, tended){
 }
 // -- set dressing --
 function drawDecor(){
-  for (const d of DECOR){
+  for (const d of ACTS[act].decor){
     const sx = d.c * TS - cam.x;
     if (sx < -300 || sx > VW + 300) continue;
     const g = surfaceY(d.c);
@@ -1525,7 +1911,88 @@ function drawDecor(){
       ctx.fillStyle = '#c9b89a'; ctx.fillRect(sx + 12, g - 6, 10, 3); ctx.fillRect(sx + 40, g - 5, 8, 3);
       ctx.fillStyle = '#c8a05c'; ctx.fillRect(sx + 26, g - 5, 3, 3); ctx.fillRect(sx + 50, g - 6, 3, 3);
       ctx.fillStyle = '#443019'; ctx.fillRect(sx + 20, g - 10, 5, 8); ctx.fillRect(sx + 36, g - 9, 4, 7);
+    } else if (d.t === 'gate'){
+      ctx.fillStyle = '#2c3448';
+      ctx.fillRect(sx, g - 150, 16, 150); ctx.fillRect(sx + 74, g - 150, 16, 150);
+      ctx.fillRect(sx - 6, g - 158, 102, 12);
+      ctx.fillStyle = '#0e121c'; ctx.fillRect(sx + 16, g - 148, 58, 148);        // the dark inside
+      ctx.fillStyle = '#1b2130';                                                 // doors torn OUTWARD, flat on the road
+      ctx.save(); ctx.translate(sx - 4, g); ctx.rotate(0.16); ctx.fillRect(-64, -10, 64, 12); ctx.restore();
+      ctx.save(); ctx.translate(sx + 94, g); ctx.rotate(-0.13); ctx.fillRect(0, -10, 64, 12); ctx.restore();
+    } else if (d.t === 'hall'){
+      for (let i = 0; i < 2; i++){
+        const cxp = sx + i * 44, hh = 120 - i * 26 + hash(d.c, i) * 44;
+        ctx.fillStyle = '#232a42'; ctx.fillRect(cxp, g - hh, 18, hh);
+        ctx.fillStyle = '#2e3652'; ctx.fillRect(cxp - 3, g - hh, 24, 8);         // sheared capital: sky where rafters were
+        ctx.fillStyle = '#161b2c'; ctx.fillRect(cxp + 14, g - hh + 8, 4, hh - 8);
+      }
+    } else if (d.t === 'rack'){
+      ctx.fillStyle = '#2a3048';
+      ctx.fillRect(sx, g - 64, 6, 64); ctx.fillRect(sx + 66, g - 64, 6, 64);
+      ctx.fillRect(sx, g - 64, 72, 5); ctx.fillRect(sx, g - 36, 72, 4);
+      ctx.fillStyle = '#3a425e';
+      for (let i = 0; i < 4; i++) ctx.fillRect(sx + 10 + i * 16, g - 58, 3, 8);  // stripped pegs
+      ctx.fillStyle = '#4a5470'; ctx.fillRect(sx + 26, g - 30, 14, 10);          // one child-sized helm
+      ctx.fillStyle = '#0e121c'; ctx.fillRect(sx + 29, g - 26, 8, 3);
+    } else if (d.t === 'stairwin'){
+      const wy2 = 110 + (d.c % 3) * 55;
+      ctx.fillStyle = '#39415c'; ctx.fillRect(sx, wy2, 8, 42);                   // arrow slit
+      ctx.fillStyle = 'rgba(180,200,240,.07)';                                   // moonlight shaft, ember-drift inside
+      ctx.beginPath(); ctx.moveTo(sx, wy2); ctx.lineTo(sx + 8, wy2); ctx.lineTo(sx + 92, g); ctx.lineTo(sx + 34, g); ctx.fill();
+    } else if (d.t === 'hearth'){
+      ctx.fillStyle = '#2c3448';
+      ctx.fillRect(sx, g - 96, 150, 14);
+      ctx.fillRect(sx, g - 96, 14, 96); ctx.fillRect(sx + 136, g - 96, 14, 96);
+      ctx.fillStyle = '#0c0f18'; ctx.fillRect(sx + 14, g - 82, 122, 82);         // the fire-box, dead dark
+      ctx.fillStyle = '#3c4458'; ctx.fillRect(sx + 30, g - 6, 90, 6);            // cold ash bed
+      ctx.fillStyle = '#39415c'; ctx.fillRect(sx + 58, g - 30, 34, 30);          // the Warden's iron mantle, in the ash
+      ctx.fillStyle = '#1b2130'; ctx.fillRect(sx + 66, g - 24, 18, 24);
+      ctx.fillStyle = '#4a5470'; ctx.fillRect(sx + 172, g - 14, 26, 14);         // the kneeling-stone
+      ctx.fillStyle = '#0e121c'; ctx.fillRect(sx + 180, g - 18, 10, 6);          // the lantern cradle: an empty socket
+    } else if (d.t === 'graffiti'){
+      ctx.fillStyle = '#232a42'; ctx.fillRect(sx, g - 90, 70, 90);               // a surviving wall
+      ctx.fillStyle = '#12161f';                                                 // soot: a lantern, crossed out
+      ctx.fillRect(sx + 22, g - 66, 22, 26); ctx.fillRect(sx + 28, g - 72, 10, 6);
+      ctx.strokeStyle = '#12161f'; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.moveTo(sx + 12, g - 74); ctx.lineTo(sx + 54, g - 34); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(sx + 54, g - 74); ctx.lineTo(sx + 12, g - 34); ctx.stroke();
+    } else if (d.t === 'throne'){
+      ctx.fillStyle = '#39415c'; ctx.fillRect(sx - 12, g - 12, 88, 12);
+      ctx.fillRect(sx, g - 22, 64, 10);
+      ctx.fillStyle = '#5a6484'; ctx.fillRect(sx + 14, g - 92, 36, 70);          // alone untouched, dustless
+      ctx.fillRect(sx + 8, g - 98, 48, 12);
+      ctx.fillStyle = '#6e7898'; ctx.fillRect(sx + 18, g - 88, 28, 8);
+    } else if (d.t === 'breach'){
+      const gl = ctx.createRadialGradient(sx + 130, g - 60, 10, sx + 130, g - 60, 220);
+      gl.addColorStop(0, 'rgba(230,120,44,.18)'); gl.addColorStop(1, 'rgba(230,120,44,0)');
+      ctx.fillStyle = gl; ctx.fillRect(sx - 60, g - 280, 400, 280);              // the war camp's glow through the wall
+      ctx.fillStyle = '#232a42';
+      ctx.fillRect(sx, g - 180, 26, 180);
+      ctx.beginPath(); ctx.moveTo(sx + 26, g - 180); ctx.lineTo(sx + 26, g); ctx.lineTo(sx + 78, g); ctx.fill();
+      ctx.fillStyle = '#1b1410'; ctx.fillRect(sx + 150, g - 66, 90, 10);         // a distant rampart
+      ctx.fillRect(sx + 168, g - 86, 8, 20);
+      ctx.fillStyle = '#0e0a08'; ctx.fillRect(sx + 206, g - 84, 7, 18);          // Selwyn, seen once, far off
+      ctx.fillStyle = '#ff9a3c'; ctx.fillRect(sx + 208, g - 81, 3, 2);           // the only other glow in the world
+    } else if (d.t === 'rubble'){
+      ctx.fillStyle = '#2a3048';
+      for (let i = 0; i < 6; i++){
+        const rx = sx + hash(d.c, i) * 60, rh = 6 + hash(d.c, i + 9) * 18;
+        ctx.fillRect(rx, g - rh, 10 + hash(i, d.c) * 14, rh);
+      }
     }
+  }
+  // swinging censers: kept fire made a trap
+  for (const cn of censers){
+    const msx = cn.x - cam.x;
+    if (msx < -220 || msx > VW + 220) continue;
+    const a = Math.sin(frame * 0.024 + cn.phase) * 1.05;
+    const bx = cn.x + Math.sin(a) * cn.len - cam.x, by = cn.y + Math.cos(a) * cn.len;
+    ctx.strokeStyle = '#39415c'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(msx, cn.y); ctx.lineTo(bx, by); ctx.stroke();
+    ctx.fillStyle = '#2a3048'; ctx.fillRect(msx - 5, cn.y - 6, 10, 8);
+    ctx.fillStyle = '#39415c'; ctx.beginPath(); ctx.arc(bx, by, 11, 0, 7); ctx.fill();
+    ctx.fillStyle = '#232a42'; ctx.beginPath(); ctx.arc(bx, by, 7, 0, 7); ctx.fill();
+    flame(bx, by - 13, 6, cn.phase, false);
   }
   // secret braziers
   for (const b of braziers){
@@ -1539,14 +2006,14 @@ function drawDecor(){
   }
   // diegetic control hints, carved on stakes
   ctx.globalAlpha = 0.9;
-  for (const h of HINTS){
+  for (const h of ACTS[act].hints){
     const sx = h.x - cam.x;
     if (sx < -120 || sx > VW + 120) continue;
     text(h.txt, sx, h.y, 14, '#c8b490');
   }
   ctx.globalAlpha = 1;
-  // wraith tease over the mill (seg 5)
-  if (cam.x > 118 * TS && cam.x < 152 * TS){
+  // wraith tease over the mill (Act I seg 5)
+  if (act === 0 && cam.x > 118 * TS && cam.x < 152 * TS){
     const wx = 120 * TS + ((frame * 0.9) % (34 * TS)) - cam.x;
     const wy = 120 + Math.sin(frame * 0.03) * 28;
     ctx.globalAlpha = 0.55;
@@ -1586,6 +2053,13 @@ function drawItems(){
       const gl = ctx.createRadialGradient(sx, sy, 2, sx, sy, 26);
       gl.addColorStop(0, 'rgba(255,170,70,.3)'); gl.addColorStop(1, 'rgba(255,170,70,0)');
       ctx.fillStyle = gl; ctx.fillRect(sx - 26, sy - 26, 52, 52);
+    } else if (it.kind === 'K'){
+      ctx.fillStyle = '#1b1410'; ctx.fillRect(sx - 7, sy - 6, 14, 11);
+      ctx.fillStyle = '#3a2418'; ctx.fillRect(sx - 4, sy - 3, 8, 6);
+      ctx.fillStyle = '#ff9a3c'; ctx.fillRect(sx - 2, sy - 1 + Math.sin(it.t * 2), 4, 3); // a living seam
+      const gl = ctx.createRadialGradient(sx, sy, 2, sx, sy, 30);
+      gl.addColorStop(0, 'rgba(255,154,60,.35)'); gl.addColorStop(1, 'rgba(255,154,60,0)');
+      ctx.fillStyle = gl; ctx.fillRect(sx - 30, sy - 30, 60, 60);
     }
   }
 }
@@ -1849,7 +2323,10 @@ function drawCard(){
   ctx.globalAlpha = 1;
   if (card.t > card.dur || (card.t > 40 && keys.startHit)){
     if (cardQueue.length){ card = cardQueue.shift(); }
-    else { state = card.next; card = null; }
+    else {
+      if (card.next === 'title' && act !== 0){ loadAct(0); resetLevel(false); }
+      state = card.next; card = null;
+    }
   }
 }
 function gradeScreen(){
@@ -1857,7 +2334,7 @@ function gradeScreen(){
   grade.t++;
   ctx.fillStyle = 'rgba(12,6,4,.7)'; ctx.fillRect(0, 0, VW, VH);
   ornament(VW / 2, 108, 480, '#8a6a3a');
-  text('ACT I CLEAR — THE ASH HARVEST', VW / 2, 148, 28, '#e8b23a');
+  text(ACTS[act].clear, VW / 2, 148, 28, '#e8b23a');
   text('HOW BRIGHTLY DID YOU BURN?', VW / 2, 178, 15, '#c8956a');
   const secs = grade.secs | 0;
   text('TIME  ' + (secs / 60 | 0) + ':' + ('0' + secs % 60).slice(-2), VW / 2, 216, 19, '#e8d9b0');
@@ -1876,8 +2353,14 @@ function gradeScreen(){
   ornament(VW / 2, 452, 480, '#8a6a3a');
   if (grade.t > 70 && (frame / 30 | 0) % 2) text('PRESS ENTER', VW / 2, 496, 18, '#f3ead6');
   if (grade.t > 70 && keys.startHit){
-    card = {title: '', lines: ['TO BE CONTINUED', 'ACT II — THE COLD HEARTH'], t: 0, dur: 240, next: 'title'};
-    state = 'card';
+    if (act === 0){ // eastward, into the dead city
+      loadAct(1); resetLevel(false, true);
+      card = {title: ACTS[1].name, lines: ACTS[1].quote, t: 0, dur: 280, next: 'play'};
+      state = 'card';
+    } else {
+      card = {title: '', lines: ['TO BE CONTINUED', 'ACT III — THE HUNGRY LIGHT'], t: 0, dur: 240, next: 'title'};
+      state = 'card';
+    }
   }
 }
 function gameoverScreen(){
@@ -1887,12 +2370,16 @@ function gameoverScreen(){
   text('The wind takes the rest.', VW / 2, 278, 22, '#8a7a64');
   text('XP  ' + xp + (best.xp ? '      BEST  ' + best.xp : ''), VW / 2, 336, 19, '#c8a05c');
   if ((frame / 30 | 0) % 2) text('PRESS ENTER', VW / 2, 408, 18, '#f3ead6');
-  if (keys.startHit) state = 'title';
+  if (keys.startHit){
+    if (act !== 0){ loadAct(0); resetLevel(false); }
+    state = 'title';
+  }
 }
 
 //======================================================================
 // MAIN LOOP
 //======================================================================
+loadAct(0);
 resetLevel(false);
 state = 'title';
 let acc = 0, last = performance.now();
@@ -1928,7 +2415,7 @@ function frameStep(){
         while (pendingSteps >= 1){
           pendingSteps--;
           playTime++;
-          updatePlayer(); updateEnemies(); updateItems(); updateFx();
+          updatePlayer(); updateEnemies(); updateItems(); updateFx(); updateCrumble();
         }
         updateCamera();
         maybeLevelUp();
@@ -1955,7 +2442,10 @@ window.EW = {
   get xp(){ return xp; }, set xp(v){ xp = v; }, get stage(){ return stage; },
   get hasCoal(){ return hasCoal; }, get embers(){ return embers; }, get items(){ return items; },
   get frame(){ return frame; }, get grid(){ return grid; }, get cam(){ return cam; },
-  keys, spr, swordBox,
+  get act(){ return act; }, get braziers(){ return braziers; }, get censers(){ return censers; },
+  get triggers(){ return triggers; }, get card(){ return card; }, get checkpoints(){ return checkpoints; },
+  get crumbled(){ return crumbled; }, get AU(){ return AU; },
+  keys, spr, swordBox, loadAct, resetLevel,
   warp(x, y){ player.x = x; if (y !== undefined) player.y = y; player.vy = 0;
     cam.x = Math.max(0, Math.min(x - VW * 0.38, LW * TS - VW)); },
 };
