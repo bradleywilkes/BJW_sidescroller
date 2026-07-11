@@ -155,14 +155,28 @@ const STAGE_PAL = [
 function buildHero(pose, stage){
   const G = newGrid(38, 36);
   const lunge = pose === 'slash' ? 1 : 0;
+  const up = pose === 'slashUp', dn = pose === 'plunge';
   // tattered cape
-  for (let y = 12; y <= 29; y++){
-    const w = 2 + Math.round((y - 12) * 0.45), x1 = 9 - Math.round((y - 12) * 0.25), x0 = Math.max(1, x1 - w);
-    rect(G, x0, y, x1, y, 'R'); G[y][x0] = 'Q';
-  }
-  [[2,29],[4,28],[1,27],[3,26],[5,29],[2,24]].forEach(([x, y]) => { if (G[y]) G[y][x] = '.'; });
-  if (stage >= 2){ // KINDLED: cape hem chars and glows
-    for (let y = 26; y <= 29; y++) for (let x = 1; x <= 8; x++) if (G[y][x] === 'R' || G[y][x] === 'Q') G[y][x] = (hash(x, y) > 0.5 ? 'E' : 'r');
+  if (dn){
+    // the dive: wind tears the cape up and back off the hunched shoulders
+    for (let y = 0; y <= 15; y++){
+      const t = (15 - y) / 15;              // 0 at the shoulder, 1 at the streaming tip
+      const w = 2 + Math.round(t * 4), x1 = 14 - Math.round(t * 10), x0 = Math.max(0, x1 - w);
+      rect(G, x0, y, x1, y, 'R'); G[y][x0] = 'Q';
+    }
+    [[1,1],[3,0],[0,2],[2,3],[4,1],[1,4]].forEach(([x, y]) => { if (G[y] && G[y][x] === 'R') G[y][x] = '.'; });
+    if (stage >= 2){ // KINDLED: the streaming tip chars and glows
+      for (let y = 0; y <= 4; y++) for (let x = 0; x <= 8; x++) if (G[y][x] === 'R' || G[y][x] === 'Q') G[y][x] = (hash(x, y) > 0.5 ? 'E' : 'r');
+    }
+  } else {
+    for (let y = 12; y <= 29; y++){
+      const w = 2 + Math.round((y - 12) * 0.45), x1 = 9 - Math.round((y - 12) * 0.25), x0 = Math.max(1, x1 - w);
+      rect(G, x0, y, x1, y, 'R'); G[y][x0] = 'Q';
+    }
+    [[2,29],[4,28],[1,27],[3,26],[5,29],[2,24]].forEach(([x, y]) => { if (G[y]) G[y][x] = '.'; });
+    if (stage >= 2){ // KINDLED: cape hem chars and glows
+      for (let y = 26; y <= 29; y++) for (let x = 1; x <= 8; x++) if (G[y][x] === 'R' || G[y][x] === 'Q') G[y][x] = (hash(x, y) > 0.5 ? 'E' : 'r');
+    }
   }
   // legs
   if (pose === 'run1'){
@@ -175,6 +189,15 @@ function buildHero(pose, stage){
   } else if (pose === 'jump'){
     seg(G, 12, 21, 9, 24, '1', 3);  seg(G, 9, 24, 10, 27, '2', 3);  rect(G, 8, 28, 13, 30, 'l');
     seg(G, 14, 21, 17, 25, '2', 3); seg(G, 17, 25, 16, 29, '3', 3); rect(G, 14, 30, 20, 32, 'M');
+  } else if (up){
+    // rising through the cut: legs driven straight, heels lifting off
+    seg(G, 12, 21, 10, 26, '1', 3); seg(G, 10, 26, 10, 30, '2', 3); rect(G, 8, 31, 13, 33, 'l');
+    seg(G, 14, 21, 17, 26, '2', 3); seg(G, 17, 26, 17, 30, '3', 3); rect(G, 16, 31, 21, 33, 'M');
+    rect(G, 16, 31, 21, 31, 'L');
+  } else if (dn){
+    // tucked dive: knees snapped up, boots trailing high behind the drop
+    seg(G, 12, 21, 8, 24, '1', 3);  seg(G, 8, 24, 6, 27, '2', 3);  rect(G, 4, 27, 9, 29, 'l');
+    seg(G, 14, 21, 18, 24, '2', 3); seg(G, 18, 24, 20, 27, '3', 3); rect(G, 18, 28, 23, 30, 'M');
   } else {
     seg(G, 12, 21, 9 + (-lunge), 26, '1', 3); seg(G, 9 - lunge, 26, 8 - lunge, 31, '2', 3); rect(G, 5 - lunge, 32, 11 - lunge, 34, 'l');
     seg(G, 14, 21, 17 + lunge * 2, 26, '2', 3); seg(G, 17 + lunge * 2, 26, 17 + lunge * 2, 31, '3', 3);
@@ -183,49 +206,61 @@ function buildHero(pose, stage){
   // hips + belt
   rect(G, 10, 19, 17, 22, '2'); rect(G, 10, 21, 17, 22, 'L');
   G[21][11] = 'G'; G[21][14] = 'G'; G[21][17] = 'G';
-  // torso, forward lean
+  // torso: upright for the skyward cut, hunched hard over for the plunge
   for (let y = 12; y <= 19; y++){
-    const off = Math.round((19 - y) * 0.4) + lunge;
+    const off = up ? 0 : Math.round((19 - y) * (dn ? 0.9 : 0.4)) + lunge;
     rect(G, 10 + off, y, 17 + off, y, '2');
     G[y][17 + off] = '3'; G[y][10 + off] = '1';
   }
-  const co = 3 + lunge;
+  const co = up ? 0 : dn ? 6 : 3 + lunge;
   G[14][12 + co] = 'g'; G[18][11 + lunge] = 'g';
   if (stage >= 2){ G[16][12 + lunge] = 'E'; G[19][12] = 'E'; }               // joint-seam cracks
   if (stage >= 3){ G[15][13 + lunge] = 'E'; G[17][14 + lunge] = 'E'; G[13][14 + co] = 'E'; } // chest cracks
   // fur mantle
-  for (let y = 10; y <= 12; y++) for (let x = 9 + co; x <= 19 + co; x++)
+  const hd = dn ? 3 : 0;   // in the dive the head sinks into the shoulders
+  for (let y = 10 + hd; y <= 12 + hd; y++) for (let x = 9 + co; x <= 19 + co; x++)
     G[y][x] = hash(x, y) > 0.6 ? 'M' : (hash(x + 5, y) > 0.5 ? 'L' : 'l');
   // CLOSED war-helm
   const hx = 13 + co;
-  rect(G, hx, 2, hx + 7, 9, '3'); rect(G, hx + 1, 1, hx + 6, 1, '4');
-  rect(G, hx, 2, hx, 9, '2');
-  rect(G, hx + 7, 3, hx + 7, 8, '4');
-  rect(G, hx + 3, 5, hx + 7, 5, '1');
-  G[5][hx + 4] = 'X'; G[5][hx + 6] = 'X';
-  rect(G, hx + 2, 7, hx + 5, 7, '2'); G[7][hx + 3] = '1'; G[7][hx + 5] = '1';
-  rect(G, hx + 2, 9, hx + 5, 10, '2');
+  rect(G, hx, 2 + hd, hx + 7, 9 + hd, '3'); rect(G, hx + 1, 1 + hd, hx + 6, 1 + hd, '4');
+  rect(G, hx, 2 + hd, hx, 9 + hd, '2');
+  rect(G, hx + 7, 3 + hd, hx + 7, 8 + hd, '4');
+  rect(G, hx + 3, 5 + hd, hx + 7, 5 + hd, '1');
+  G[5 + hd][hx + 4] = 'X'; G[5 + hd][hx + 6] = 'X';
+  rect(G, hx + 2, 7 + hd, hx + 5, 7 + hd, '2'); G[7 + hd][hx + 3] = '1'; G[7 + hd][hx + 5] = '1';
+  rect(G, hx + 2, 9 + hd, hx + 5, 10 + hd, '2');
   // crest (Ablaze: it burns)
-  seg(G, hx + 1, 1, hx - 4, 5, stage >= 3 ? 'E' : 'R', 2);
-  G[5][hx - 4] = stage >= 3 ? 'X' : 'Q'; G[2][hx - 1] = stage >= 3 ? 'X' : 'Q';
+  seg(G, hx + 1, 1 + hd, hx - 4, 5 + hd, stage >= 3 ? 'E' : 'R', 2);
+  G[5 + hd][hx - 4] = stage >= 3 ? 'X' : 'Q'; G[2 + hd][hx - 1] = stage >= 3 ? 'X' : 'Q';
   // off arm
-  rect(G, 9 + co, 12, 12 + co, 14, '3'); rect(G, 9 + co, 14, 12 + co, 15, '2');
-  seg(G, 11 + co, 15, 13, 18, '2', 2); rect(G, 13, 17, 14, 18, 'M');
+  if (up){
+    // swung down and back for counterbalance
+    rect(G, 9, 12, 12, 14, '3'); rect(G, 9, 14, 12, 15, '2');
+    seg(G, 10, 15, 8, 19, '2', 2); rect(G, 7, 19, 9, 20, 'M');
+  } else if (dn){
+    // both arms drive down the centerline
+    rect(G, 9 + co, 12, 12 + co, 14, '3');
+    seg(G, 12 + co, 14, 16, 18, '2', 2);
+  } else {
+    rect(G, 9 + co, 12, 12 + co, 14, '3'); rect(G, 9 + co, 14, 12 + co, 15, '2');
+    seg(G, 11 + co, 15, 13, 18, '2', 2); rect(G, 13, 17, 14, 18, 'M');
+  }
   // lantern on the belt, always dark (the twist rides here)
   rect(G, 13, 19, 15, 21, '1'); G[19][14] = 'l';
   // lead arm + Brand
   rect(G, 15 + co, 12, 19 + co, 14, '4'); rect(G, 15 + co, 14, 19 + co, 15, '3');
-  if (pose === 'slashUp'){
-    // arm thrown straight up past the helm; Brand overhead drawn in-world
-    seg(G, 21, 13, 24, 5, '3', 2);
-    rect(G, 23, 2, 25, 4, 'M');
-    G[4][26] = 'G'; G[3][26] = 'G';
-  } else if (pose === 'plunge'){
-    // both hands drive the blade down past the boots; blade drawn in-world
-    seg(G, 19, 14, 15, 20, '3', 2);
-    seg(G, 11 + co, 15, 14, 19, '2', 2);
-    rect(G, 13, 20, 17, 22, 'M');
-    G[22][15] = 'G';
+  if (up){
+    // arm thrown dead vertical beside the helm; Brand overhead drawn in-world
+    seg(G, 18, 12, 20, 6, '3', 2);
+    rect(G, 19, 2, 21, 5, 'M');
+    G[5][22] = 'G'; G[4][22] = 'G';
+  } else if (dn){
+    // stacked two-handed grip, Brand point-down between the tucked knees
+    seg(G, 17 + co, 14, 16, 18, '3', 2);
+    rect(G, 14, 18, 18, 21, 'M');
+    rect(G, 13, 22, 18, 22, 'G');
+    rect(G, 15, 23, 15, 35, 'W'); rect(G, 16, 23, 16, 35, 'w');
+    if (stage >= 1) rect(G, 14, 24, 14, 33, 'E');            // hot edge-line
   } else if (pose === 'slash' || pose === 'cast'){
     seg(G, 18 + co, 14, 24, 15, '3', 2);
     rect(G, 25, 13, 26, 15, 'M');
@@ -2602,16 +2637,10 @@ function drawPlayer(){
   }
   // skyward: Brand thrust point-up from the raised fist
   if (p.atk > 0 && p.atkUp && !p.plunge){
-    const hx = cx + p.dir * 14;
+    const hx = cx + p.dir * 7;
     ctx.fillStyle = '#e8dcc2'; ctx.fillRect(hx - 2, p.y - 36, 3, 26);
     ctx.fillStyle = '#a08a5c'; ctx.fillRect(hx + 1, p.y - 36, 2, 26);
     ctx.fillStyle = '#c2762e'; ctx.fillRect(hx - 7, p.y - 12, 13, 3);
-  }
-  // plunge: Brand held point-down beneath him
-  if (p.plunge){
-    ctx.fillStyle = '#e8dcc2'; ctx.fillRect(cx - 2, p.y + p.h - 8, 3, 26);
-    ctx.fillStyle = '#a08a5c'; ctx.fillRect(cx + 1, p.y + p.h - 8, 2, 26);
-    ctx.fillStyle = '#c2762e'; ctx.fillRect(cx - 7, p.y + p.h - 10, 13, 3);
   }
   // lantern ceremony: he lifts it to the flame, holds, lowers it -- still dark
   if (p.ceremony > 0){
