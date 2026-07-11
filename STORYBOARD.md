@@ -11,7 +11,7 @@ fight are next.
 
 ## The theme: TWO FIRES
 
-**The fire that warms and the fire that eats are the same fire. Tending is the whole moral question.**
+**The fire that warms and the fire that consumes are the same fire. Tending is the whole moral question.**
 
 A hearth is fire that is kept, fed carefully, shared. A wildfire is fire that keeps
 itself. The villain didn't bring fire to the kingdom — he *was its fire-keeper*, and
@@ -27,10 +27,10 @@ watches their own sprite transform toward the villain's condition all game long.
 | Thing | Name | Why |
 |---|---|---|
 | The game | **EMBERWARD** (*A Tale of Caldermark*) | *-ward* = keeping/tending; the theme in one word |
-| The kingdom | **Caldermark** | reads found, not generated |
+| The kingdom | **Caldermark** | sounds like a real place on an old map, not a fantasy-name generator |
 | The hero | **The Hearthless Knight** | defined by what he lost custody of |
 | The villain | **Selwyn** (Old English *sele* + *wine*: "hall-friend") | a kindly steward's name — the Hearth-Warden's job description fossilized. The hall's friend is what ended the hall. Menace is 100% context |
-| His epithet | "the Unquenched" survives only as what the **cultists** call him | his own card gains its menace from warmth (below) |
+| His epithet | "the Unquenched" survives only as what the **cultists** call him | his own boss card is titled "the Warm" instead — the menace comes from the warmth (see the intro card below) |
 | The sword | **Brand** | Old English/Norse: both "sword" and "burning log" |
 | Bone Footman | **Bone Levy** | Caldermark's own conscripted dead |
 
@@ -44,7 +44,7 @@ Boss intro card:
 ## The premise
 
 When Caldermark's own Hearth-Warden stopped tending the King's Coal and let it
-feed on him, the fire that had warmed a kingdom walked out its gates and ate it.
+feed on him, the fire that had warmed a kingdom walked out its gates and consumed it.
 One knight survived, hearthless, with an empty lantern and a sword named Brand.
 He marches east through the ash to take back the stolen coal — and decide, at the
 gate of the man it hollowed, whether it should ever be lit again.
@@ -120,7 +120,7 @@ not his.)*
 - **Checkpoints refill fully** (tending gives) — this also kills hoarding: banking
   past a checkpoint has zero value.
 - At 3/3, sword hits spill wasted sparks + fizzle SFX — the blade is begging.
-- Damage 2 (melee 1): fireball opens the 3-hit Brigand, sword finishes. Pierces
+- Fireball damage 2 (the sword does 1): it opens the 3-hit Brigand, sword finishes. Pierces
   fodder, stops on heavies. Projectile 5.0 px/f, slight droop (gravity 0.06).
   Cast: 16f total (6f raise + glow, release, 10f recovery), grounded-only.
 - Flyers and lobbers perch out of sword reach — the fireball's obvious prey.
@@ -137,8 +137,9 @@ like kindling. No dice anywhere.
   Pity timer: guaranteed after 24 non-crits; after a crit, next 3 hits can't.
 - Damage 2× ("a free fireball"), 9f hitstop (normal 4), 14-spark cone, +5 semitone
   ring-out SFX, 2px directional shake.
-- The fiction is taught by the **Soldier's Fire-Steel** pickup (Act I-7, replaces
-  the dice beat): flint-and-striker in a horde campfire pit.
+- The fiction is taught by the **Soldier's Fire-Steel** pickup (Act I-7): a
+  flint-and-striker found in a horde campfire pit, so the crit reads as flint
+  striking steel rather than a dice roll.
   Toast: `A soldier's fire-steel. Struck true.`
 
 ### Leveling — visible transformation (Spark → Kindled → Ablaze)
@@ -198,7 +199,7 @@ they refill hearts context and Embers. Coins are dead men's coins, tallied into 
 | 1 | Gatehouse doors torn *outward* — the fire left; nothing broke in | Rubble-climb intro; Levies on the stairs |
 | 2 | Great hall roofless; sky where rafters were | **Cinder Wraith** true intro, swooping between beam-hops |
 | 3 | Armory racks stripped bare but for one child-sized helm | Brigands in a tight corridor; collapsing-floor trap |
-| 4 | Spiral stair; arrow-slit light shafts full of ember-drift | Vertical climb, Wraiths diving through the shafts; mid-climb checkpoint |
+| 4 | Spiral stair; arrow-slit light shafts full of ember-drift | Zigzag platform climb — the game's tallest, spanning the full screen height — with Wraiths diving through the shafts; mid-climb checkpoint |
 | 5 | **THE COLD HEARTH** — arena-sized dead hearth; the Warden's iron mantle in the ash; a kneeling-stone with a lantern cradle | Silent screen, no enemies. Lantern-cradle card (the twist reveal), then **Warden's Coal** — Brand ignites; fireball tutorial on unlit braziers |
 | 6 | Hearth-sigils painted inverted in soot — cultist graffiti | **Ember Cultist** intro lobbing fire from ledges; fireball is the counter-tool. First cultist kill toast: `They tithe to a nameless warmth.` |
 | 7 | Throne room; the throne alone untouched and dustless | Trap gauntlet — swinging censers, spike pits — into an ambush wave |

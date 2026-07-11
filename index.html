@@ -60,7 +60,7 @@
 //======================================================================
 //  EMBERWARD -- A Tale of Caldermark
 //  Act I: The Ash Harvest
-//  "The fire that warms and the fire that eats are the same fire."
+//  "The fire that warms and the fire that consumes are the same fire."
 //======================================================================
 const TS = 32, VW = 960, VH = 544;
 const cvs = document.getElementById('game'), ctx = cvs.getContext('2d');
@@ -887,7 +887,7 @@ let cardQueue = [];
 try { best = JSON.parse(localStorage.getItem('emberward') || '{}'); } catch (e) {}
 
 let enemySpawns = [], itemSpawns = [], braziers = [], triggers = [], censers = [];
-let crumbled = [], crumbling = []; // '%' tiles eaten this attempt; restored on reset
+let crumbled = [], crumbling = []; // '%' tiles consumed this attempt; restored on reset
 function loadAct(n){
   act = n;
   const A = ACTS[n];
@@ -1861,7 +1861,7 @@ function drawSky(){
       const x = ((hash(4, i) * (VW + 300) + frame * (0.12 + i * 0.04)) % (VW + 300)) - 150;
       ctx.beginPath(); ctx.ellipse(x, my - 34 + i * 22, cw, 5 + i * 2, 0, 0, 7); ctx.fill();
     }
-    // eastward, low: the war camp eating the horizon. it grows as you walk to it
+    // eastward, low: the war camp consuming the horizon. it grows as you walk to it
     const p = Math.min(1, cam.x / (LW * TS - VW));
     const eg = ctx.createRadialGradient(VW + 60, VH * 0.78, 20, VW + 60, VH * 0.78, VW * (0.5 + p * 0.45));
     eg.addColorStop(0, 'rgba(216,84,30,' + (0.10 + p * 0.22) + ')');
