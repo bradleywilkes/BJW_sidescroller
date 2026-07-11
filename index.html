@@ -1608,20 +1608,34 @@ function saveBest(){
 //======================================================================
 // DRAWING -- the Ash Harvest
 //======================================================================
-function cloudBand(y, n, drift, seed, dark, rim){
-  // ragged deck of cloud, underside lit from below -- the sky remembers the fires.
-  // slabs are spaced to overlap, with occasional torn gaps, so the band reads
-  // as one long strip instead of floating pancakes
-  const spanW = VW + 420;
-  for (let i = 0; i < n; i++){
-    if (hash(seed + 5, i) > 0.87) continue;                    // a tear in the deck
-    const w = 130 + hash(seed, i) * 130, h = 7 + hash(seed + 1, i) * 9;
-    const x = (((i / n) * spanW + hash(seed + 2, i) * 90 - frame * drift - cam.x * 0.03) % spanW + spanW) % spanW - 210;
-    const yy = y + hash(seed + 3, i) * 18 - 9;
-    ctx.fillStyle = rim;
-    ctx.beginPath(); ctx.ellipse(x, yy + h * 0.45, w * 0.9, h, 0, 0, 7); ctx.fill();
-    ctx.fillStyle = dark;
-    ctx.beginPath(); ctx.ellipse(x, yy, w, h, 0, 0, 7); ctx.fill();
+function cloudBand(y, drift, seed, dark, rimRGB){
+  // a handful of separate cloud masses, each puffed from overlapping lobes and
+  // each catching the fires below differently -- open sky between them
+  const spanW = VW + 700;
+  for (let m = 0; m < 4; m++){
+    if (hash(seed + 9, m) > 0.9) continue;
+    const mx = (((m / 4) * spanW + hash(seed, m) * 300 - frame * drift - cam.x * 0.03) % spanW + spanW) % spanW - 350;
+    if (mx < -280 || mx > VW + 280) continue;
+    const my2 = y + (hash(seed + 1, m) - 0.5) * 44;
+    const scale = 0.65 + hash(seed + 2, m) * 0.9;
+    const lit = 0.35 + hash(seed + 3, m) * 0.65;
+    const n = 3 + (hash(seed + 4, m) * 3 | 0);
+    for (let pass = 0; pass < 2; pass++){ // all rims beneath all bodies
+      for (let i = 0; i < n; i++){
+        const bias = 1 - Math.abs(i - (n - 1) / 2) / n;        // taller in the middle
+        const w = (30 + hash(seed + 5, m * 7 + i) * 50) * scale * (0.7 + bias * 0.7);
+        const h = (9 + hash(seed + 6, m * 7 + i) * 13) * scale * (0.6 + bias * 0.6);
+        const ox = (i - (n - 1) / 2) * w * 1.15 + (hash(seed + 7, m * 7 + i) - 0.5) * 16;
+        const oy = (hash(seed + 8, m * 7 + i) - 0.5) * 12 - bias * h * 0.5;
+        if (pass === 0){
+          ctx.fillStyle = 'rgba(' + rimRGB + ',' + (0.34 * lit).toFixed(3) + ')';
+          ctx.beginPath(); ctx.ellipse(mx + ox, my2 + oy + h * 0.5, w * 0.92, h, 0, 0, 7); ctx.fill();
+        } else {
+          ctx.fillStyle = dark;
+          ctx.beginPath(); ctx.ellipse(mx + ox, my2 + oy, w, h, 0, 0, 7); ctx.fill();
+        }
+      }
+    }
   }
 }
 function drawSky(){
@@ -1693,10 +1707,9 @@ function drawSky(){
     ctx.fillStyle = 'rgba(26,10,7,' + (0.45 + hash(7, i) * 0.25) + ')';
     ctx.beginPath(); ctx.ellipse(bx, my - mr * 0.55 + i * mr * 0.38, bw / 2, bh, 0, 0, 7); ctx.fill();
   }
-  // cloud decks lit from beneath by a burning kingdom
-  cloudBand(VH * 0.10, 7, 0.10, 21, '#150806', 'rgba(190,74,30,.30)');
-  cloudBand(VH * 0.24, 8, 0.16, 34, '#180a07', 'rgba(214,92,36,.26)');
-  cloudBand(VH * 0.38, 7, 0.24, 47, '#1c0c08', 'rgba(230,110,44,.20)');
+  // two decks of cloud, lit from beneath by a burning kingdom
+  cloudBand(VH * 0.12, 0.10, 21, '#150806', '204,84,32');
+  cloudBand(VH * 0.33, 0.20, 47, '#1a0b08', '230,110,44');
   // carrion birds wheeling over what's left
   ctx.strokeStyle = 'rgba(16,7,5,.8)'; ctx.lineWidth = 2;
   for (let i = 0; i < 6; i++){
