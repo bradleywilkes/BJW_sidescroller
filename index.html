@@ -1608,33 +1608,68 @@ function saveBest(){
 //======================================================================
 // DRAWING -- the Ash Harvest
 //======================================================================
-function cloudBand(y, drift, seed, dark, rimRGB){
-  // a handful of separate cloud masses, each puffed from overlapping lobes and
-  // each catching the fires below differently -- open sky between them
-  const spanW = VW + 700;
-  for (let m = 0; m < 4; m++){
-    if (hash(seed + 9, m) > 0.9) continue;
-    const mx = (((m / 4) * spanW + hash(seed, m) * 300 - frame * drift - cam.x * 0.03) % spanW + spanW) % spanW - 350;
-    if (mx < -280 || mx > VW + 280) continue;
-    const my2 = y + (hash(seed + 1, m) - 0.5) * 44;
-    const scale = 0.65 + hash(seed + 2, m) * 0.9;
-    const lit = 0.35 + hash(seed + 3, m) * 0.65;
-    const n = 3 + (hash(seed + 4, m) * 3 | 0);
-    for (let pass = 0; pass < 2; pass++){ // all rims beneath all bodies
-      for (let i = 0; i < n; i++){
-        const bias = 1 - Math.abs(i - (n - 1) / 2) / n;        // taller in the middle
-        const w = (30 + hash(seed + 5, m * 7 + i) * 50) * scale * (0.7 + bias * 0.7);
-        const h = (9 + hash(seed + 6, m * 7 + i) * 13) * scale * (0.6 + bias * 0.6);
-        const ox = (i - (n - 1) / 2) * w * 1.15 + (hash(seed + 7, m * 7 + i) - 0.5) * 16;
-        const oy = (hash(seed + 8, m * 7 + i) - 0.5) * 12 - bias * h * 0.5;
-        if (pass === 0){
-          ctx.fillStyle = 'rgba(' + rimRGB + ',' + (0.34 * lit).toFixed(3) + ')';
-          ctx.beginPath(); ctx.ellipse(mx + ox, my2 + oy + h * 0.5, w * 0.92, h, 0, 0, 7); ctx.fill();
-        } else {
-          ctx.fillStyle = dark;
-          ctx.beginPath(); ctx.ellipse(mx + ox, my2 + oy, w, h, 0, 0, 7); ctx.fill();
-        }
+// three cloud families, told apart the way real sky is: height, shape, light.
+function cirrus(seed){
+  // high and ice-thin: wind-combed streaks, too far up to catch much fire
+  const spanW = VW + 500;
+  for (let i = 0; i < 5; i++){
+    if (hash(seed, i) > 0.9) continue;
+    const x = ((hash(seed + 1, i) * spanW - frame * 0.05 - cam.x * 0.02) % spanW + spanW) % spanW - 250;
+    const y = VH * (0.05 + hash(seed + 2, i) * 0.11);
+    const len = 130 + hash(seed + 3, i) * 220;
+    ctx.strokeStyle = 'rgba(235,185,150,' + (0.05 + hash(seed + 4, i) * 0.05).toFixed(3) + ')';
+    for (let s = 0; s < 3; s++){ // a few strands per streak, swept slightly upward
+      ctx.lineWidth = s === 1 ? 2 : 1;
+      ctx.beginPath();
+      for (let t = 0; t <= len; t += 16){
+        const yy = y + s * 3 + Math.sin(t * 0.02 + i * 2 + s) * 3 - t * 0.02;
+        t ? ctx.lineTo(x + t, yy) : ctx.moveTo(x + t, yy);
       }
+      ctx.stroke();
+    }
+  }
+}
+function cumulus(seed){
+  // mid height: heaped lobed tops on a FLAT base; the base faces the fires
+  const spanW = VW + 700;
+  for (let m = 0; m < 3; m++){
+    if (hash(seed + 9, m) > 0.88) continue;
+    const mx = (((m / 3) * spanW + hash(seed, m) * 300 - frame * 0.14 - cam.x * 0.03) % spanW + spanW) % spanW - 350;
+    if (mx < -300 || mx > VW + 300) continue;
+    const baseY = VH * (0.24 + hash(seed + 1, m) * 0.13);
+    const scale = 0.7 + hash(seed + 2, m) * 0.9;
+    const lit = 0.4 + hash(seed + 3, m) * 0.6;
+    const n = 4 + (hash(seed + 4, m) * 3 | 0);
+    const wTot = n * 26 * scale;
+    ctx.fillStyle = 'rgba(230,110,44,' + (0.32 * lit).toFixed(3) + ')';  // fire-lit underside
+    ctx.beginPath(); ctx.ellipse(mx, baseY + 2, wTot * 0.58, 5 * scale, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#1a0b08';
+    for (let i = 0; i < n; i++){                                          // heaped tops
+      const bias = 1 - Math.abs(i - (n - 1) / 2) / (n / 2 + 0.5);
+      const w = (16 + hash(seed + 5, m * 9 + i) * 18) * scale * (0.7 + bias * 0.5);
+      const h = (10 + hash(seed + 6, m * 9 + i) * 20) * scale * (0.45 + bias * 0.75);
+      const ox = (i - (n - 1) / 2) * wTot / n;
+      ctx.beginPath(); ctx.ellipse(mx + ox, baseY - h * 0.62, w, h, 0, 0, 7); ctx.fill();
+    }
+    ctx.beginPath(); ctx.ellipse(mx, baseY - 3 * scale, wTot * 0.55, 4.5 * scale, 0, 0, 7); ctx.fill(); // the flat floor
+  }
+}
+function stratus(seed){
+  // low sheets hugging the smoldering horizon -- longest, warmest lit
+  const spanW = VW + 800;
+  for (let s = 0; s < 2; s++){
+    const x = ((hash(seed, s) * spanW - frame * (0.07 + s * 0.04) - cam.x * 0.025) % spanW + spanW) % spanW - 400;
+    const y = VH * (0.44 + s * 0.06 + hash(seed + 1, s) * 0.03);
+    const len = 300 + hash(seed + 2, s) * 300;
+    const th = 6 + hash(seed + 3, s) * 6;
+    ctx.fillStyle = 'rgba(224,100,40,' + (0.10 + hash(seed + 5, s) * 0.08).toFixed(3) + ')';
+    ctx.beginPath(); ctx.ellipse(x + len / 2, y + th * 0.5, len * 0.52, th * 0.8, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(20,9,7,.8)';
+    for (let k = 0; k < 3; k++){ // stacked thinning laminae
+      ctx.beginPath();
+      ctx.ellipse(x + len / 2 + (hash(seed + 6, s * 5 + k) - 0.5) * len * 0.3, y - k * th * 0.55,
+        len * (0.5 - k * 0.12), th * (1 - k * 0.22), 0, 0, 7);
+      ctx.fill();
     }
   }
 }
@@ -1707,9 +1742,10 @@ function drawSky(){
     ctx.fillStyle = 'rgba(26,10,7,' + (0.45 + hash(7, i) * 0.25) + ')';
     ctx.beginPath(); ctx.ellipse(bx, my - mr * 0.55 + i * mr * 0.38, bw / 2, bh, 0, 0, 7); ctx.fill();
   }
-  // two decks of cloud, lit from beneath by a burning kingdom
-  cloudBand(VH * 0.12, 0.10, 21, '#150806', '204,84,32');
-  cloudBand(VH * 0.33, 0.20, 47, '#1a0b08', '230,110,44');
+  // a real sky's worth of cloud: high cirrus, heaped cumulus, horizon stratus
+  cirrus(21);
+  cumulus(34);
+  stratus(47);
   // carrion birds wheeling over what's left
   ctx.strokeStyle = 'rgba(16,7,5,.8)'; ctx.lineWidth = 2;
   for (let i = 0; i < 6; i++){
