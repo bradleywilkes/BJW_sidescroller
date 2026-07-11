@@ -101,6 +101,12 @@ const PAL = {W:'#e8dcc2', w:'#a08a5c', O:'#160d08', '1':'#2e2417', '2':'#5a4526'
 const BONE = {O:'#160d08', '4':'#c9b89a', '3':'#a89878', '2':'#5a4526', M:'#5f4526', L:'#443019', X:'#6e2416', W:'#e8dcc2', w:'#a08a5c', G:'#c2762e'};
 // enemy palette: eye-slits stay DARK -- only the hero, Selwyn, and kept fires glow
 const ENPAL = {...PAL, X:'#6e2416'};
+// per-enemy palettes tuned to READ against the dark earth/stone -- matte, no glow
+const HOUNDPAL = {O:'#160d08', l:'#4a443a', L:'#767061', M:'#9c9482', W:'#e8dcc2', X:'#6e2416'};
+const IMPPAL   = {O:'#160d08', l:'#54453c', L:'#8a7466', M:'#a89484', X:'#6e2416'};
+const CULTPAL  = {O:'#160d08', R:'#6e3a2e', Q:'#8a4a38', r:'#48281f', s:'#a89484', l:'#2a1c10', L:'#443019', M:'#5f4526'};
+const WRPAL    = {O:'#160d08', r:'#6e4a56', l:'#3c3040', L:'#9a8a94', M:'#b0a4ac', X:'#6e2416'};
+const BRIGPAL  = {...ENPAL, l:'#332619', L:'#544838', M:'#75664e', R:'#8a3424', '2':'#6e6a5e', '3':'#8f8a7a', '1':'#3c3a32', W:'#c9c4b4'};
 // stage palettes: the visor/glow char X brightens; ember cracks use 'E'
 const STAGE_PAL = [
   {...PAL, X:'#b05a24', E:'#b05a24'},                    // unawakened: dim flicker
@@ -201,22 +207,65 @@ function buildHero(pose, stage){
 //----------------------------------------------------------------------
 // ENEMIES
 //----------------------------------------------------------------------
-function buildHound(frame){ // frame 0/1 run, 2 windup
-  const G = newGrid(26, 16);
-  const crouch = frame === 2 ? 2 : 0;
-  seg(G, 3, 5 + crouch, 16, 4 + crouch, 'L', 4);
-  rect(G, 15, 2 + crouch, 20, 6 + crouch, 'L'); rect(G, 19, 4 + crouch, 24, 6 + crouch, 'l');
-  G[3 + crouch][21] = 'X';
-  rect(G, 16, 1 + crouch, 17, 2 + crouch, 'l');
-  seg(G, 3, 5 + crouch, 0, 1 + crouch, 'l', 2);
-  rect(G, 3, 3 + crouch, 15, 3 + crouch, 'l');
-  if (frame === 1){
-    seg(G, 5, 9, 8, 13, 'l', 2); seg(G, 10, 9, 8, 13, 'L', 2);
-    seg(G, 14, 9, 16, 13, 'l', 2); seg(G, 17, 8, 14, 13, 'L', 2);
-  } else {
-    seg(G, 5, 9 + crouch, 4, 13, 'l', 2); seg(G, 9, 9 + crouch, 9, 13, 'L', 2);
-    seg(G, 13, 9 + crouch, 12, 13, 'l', 2); seg(G, 16, 8 + crouch, 17, 13, 'L', 2);
+function buildHound(frame){ // frame 0/1 run, 2 windup -- big ash-grey farm dog, stands tall
+  const G = newGrid(30, 20);
+  const c = frame === 2 ? 3 : 0;
+  seg(G, 3, 5 + c, 0, 1 + c, 'l', 2);                       // tail raised
+  seg(G, 4, 6 + c, 17, 5 + c, 'L', 5);                      // deep chest, high shoulders
+  rect(G, 4, 4 + c, 16, 5 + c, 'M');                        // pale back ridge
+  rect(G, 6, 10 + c, 15, 10 + c, 'l');                      // belly shadow
+  rect(G, 16, 2 + c, 21, 7 + c, 'L');                       // neck + head held high
+  rect(G, 16, 2 + c, 21, 3 + c, 'M');
+  rect(G, 20, 4 + c, 26, 5 + c, 'L');                       // muzzle
+  rect(G, 20, 7 + c, 25, 7 + c, 'l');                       // lower jaw, open
+  G[6 + c][22] = 'W';                                       // bared teeth
+  G[4 + c][21] = 'X';                                       // eye stays dark
+  rect(G, 16, 0 + c, 17, 2 + c, 'l');                       // ear
+  if (frame === 1){                                         // stride gathered
+    seg(G, 6, 11, 9, 15, 'l', 2); seg(G, 9, 15, 8, 18, 'L', 2); rect(G, 7, 18, 10, 19, 'l');
+    seg(G, 13, 11, 15, 15, 'L', 2); seg(G, 15, 15, 13, 18, 'l', 2); rect(G, 12, 18, 15, 19, 'l');
+  } else {                                                  // stride extended / crouch
+    seg(G, 6, 11 + c, 4, 15 + c, 'l', 2); seg(G, 4, 15 + c, 3, 18, 'L', 2); rect(G, 2, 18, 5, 19, 'l');
+    seg(G, 9, 11 + c, 10, 15 + c, 'L', 2); seg(G, 10, 15 + c, 10, 18, 'l', 2); rect(G, 9, 18, 12, 19, 'l');
+    seg(G, 14, 11 + c, 16, 15 + c, 'l', 2); seg(G, 16, 15 + c, 17, 18, 'L', 2); rect(G, 16, 18, 19, 19, 'l');
   }
+  texture(G); return outline(G).map(r => r.join(''));
+}
+function buildImp(frame){ // ash imp: small erratic hopper. 0 crouch, 1 mid-leap
+  const G = newGrid(14, 13);
+  if (frame){
+    rect(G, 4, 2, 9, 8, 'L'); rect(G, 4, 2, 9, 3, 'M');
+    seg(G, 4, 8, 1, 11, 'l', 2); seg(G, 9, 8, 12, 11, 'l', 2);   // legs spread
+    seg(G, 3, 4, 0, 2, 'l', 1); seg(G, 10, 4, 13, 2, 'l', 1);    // arms flung up
+  } else {
+    rect(G, 3, 5, 10, 11, 'L'); rect(G, 3, 5, 10, 6, 'M');
+    rect(G, 3, 11, 10, 12, 'l');
+    seg(G, 2, 8, 1, 11, 'l', 2); seg(G, 11, 8, 12, 11, 'l', 2);
+  }
+  const hy = frame ? 2 : 5;
+  G[hy - 1][4] = 'l'; G[hy - 1][9] = 'l';                        // horn nubs
+  G[hy + 1][5] = 'X'; G[hy + 1][8] = 'X';                        // eyes, dark
+  texture(G); return outline(G).map(r => r.join(''));
+}
+function buildCultist(pose){ // ember cultist: 2-hit robed lobber. walk1/walk2/raise
+  const G = newGrid(20, 30);
+  rect(G, 6, 0, 13, 7, 'R'); rect(G, 7, 0, 12, 1, 'Q');
+  rect(G, 8, 4, 11, 6, 'O');                                     // hood cavity, always dark
+  for (let y = 8; y <= 25; y++){
+    const w = 3 + Math.round((y - 8) * 0.22);
+    rect(G, 10 - w, y, 9 + w, y, 'R');
+    G[y][10 - w] = 'r';
+  }
+  rect(G, 4, 25, 15, 27, 'r');
+  G[12][9] = 'O'; G[12][10] = 'O'; G[13][8] = 'O'; G[13][11] = 'O'; // soot sigil: crossed-out hearth
+  if (pose === 'raise'){
+    seg(G, 5, 10, 2, 4, 'R', 2); seg(G, 14, 10, 17, 4, 'R', 2);
+    rect(G, 1, 2, 3, 4, 's'); rect(G, 16, 2, 18, 4, 's');        // ashen hands offered up
+  } else {
+    seg(G, 5, 10, 3, 16, 'R', 2); seg(G, 14, 10, 16, 16, 'R', 2);
+  }
+  if (pose === 'walk2'){ rect(G, 6, 28, 9, 29, 'l'); rect(G, 11, 28, 14, 29, 'l'); }
+  else { rect(G, 5, 28, 8, 29, 'l'); rect(G, 12, 28, 15, 29, 'l'); }
   texture(G); return outline(G).map(r => r.join(''));
 }
 function buildLevy(frame){ // bone levy, 1-hit fodder
@@ -292,10 +341,12 @@ function spr(kind, a, b){
   if (CACHE[key]) return CACHE[key];
   let img;
   if (kind === 'hero') img = px(STAGE_PAL[b], buildHero(a, b), 2);
-  else if (kind === 'hound') img = px(ENPAL, buildHound(a), 2);
+  else if (kind === 'hound') img = px(HOUNDPAL, buildHound(a), 2);
   else if (kind === 'levy') img = px(BONE, buildLevy(a), 2);
-  else if (kind === 'brigand') img = px(ENPAL, buildBrigand(a), 2);
-  else if (kind === 'wraith') img = px(ENPAL, buildWraith(a), 2);
+  else if (kind === 'brigand') img = px(BRIGPAL, buildBrigand(a), 2);
+  else if (kind === 'wraith') img = px(WRPAL, buildWraith(a), 2);
+  else if (kind === 'imp') img = px(IMPPAL, buildImp(a), 2);
+  else if (kind === 'cult') img = px(CULTPAL, buildCultist(a), 2);
   CACHE[key] = img;
   CACHE[key + '|white'] = tinted(img, '#ffffff');
   CACHE[key + '|ash'] = tinted(img, '#241a12');
@@ -408,7 +459,7 @@ const AU = {
 const keys = {};
 const KEYMAP = {
   ArrowLeft:'left', KeyA:'left', ArrowRight:'right', KeyD:'right',
-  ArrowUp:'jump', KeyW:'jump', Space:'jump', KeyZ:'jump',
+  ArrowUp:'up', KeyW:'up', Space:'jump', KeyZ:'jump',
   ArrowDown:'down', KeyS:'down',
   KeyX:'atk', KeyJ:'atk', KeyK:'atk', KeyC:'cast', KeyL:'cast',
   Enter:'start', KeyM:'mute', KeyP:'pause',
@@ -420,9 +471,14 @@ addEventListener('keydown', e => {
   AU.init();
   if (!keys[a]) keys[a + 'Hit'] = true;
   keys[a] = true;
+  if (a === 'up' && !keys.jump){ keys.jumpHit = true; keys.jump = true; } // up doubles as jump
   if (a === 'mute') AU.music = !AU.music;
 });
-addEventListener('keyup', e => { const a = KEYMAP[e.code]; if (a) keys[a] = false; });
+addEventListener('keyup', e => {
+  const a = KEYMAP[e.code]; if (!a) return;
+  keys[a] = false;
+  if (a === 'up') keys.jump = false;
+});
 if ('ontouchstart' in window){
   document.body.classList.add('touch');
   const bind = (id, act) => {
@@ -480,7 +536,7 @@ const SEGS = [
   '....====..'+E10+E10,
   E10+E10+E10,
   '........L.'+E10+E10,
-  '......####'+'....L.####'+'..H.......',
+  '......####'+'....L.####'+'..H....a..',
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
@@ -504,7 +560,7 @@ const SEGS = [
   '.......cc.'+'.====.....'+E10,
   '......===='+E10+E10,
   E10+E10+E10,
-  '.........L'+'.....cc...'+E10,
+  '.......a.L'+'.....cc...'+E10,
   '........##'+'####.==...'+E10,
   '....######'+'####......'+'.L...H....',
   '##########'+'####....##'+'##########',
@@ -528,7 +584,7 @@ const SEGS = [
   '........cc'+E10+'..cc......',
   '........=='+'=.........'+'.===......',
   '.........c'+'....c.....'+E10,
-  '.......L..'+'.L....H..z'+'...L......',
+  '.......L..'+'.L....H..z'+'...L..a...',
   '#####.....'+'..##.f...#'+'#....#####',
   '##########'+'##########'+'##########',
   '##########'+'##########'+'##########',
@@ -569,7 +625,7 @@ const grid = ROWS.map(r => r.split(''));
 let state = 'title', frame = 0, playTime = 0, paused = false;
 let cam = {x: 0, shake: 0};
 let hitstop = 0, timeScale = 1, pendingSteps = 0;
-let player, enemies = [], items = [], particles = [], popups = [], corpses = [], fireballs = [];
+let player, enemies = [], items = [], particles = [], popups = [], corpses = [], fireballs = [], shots = [];
 let toasts = [], card = null;   // {lines:[..], t, dur, next}
 let spawnPt = {x: 64, y: 380};
 let checkpoints = [];
@@ -588,12 +644,12 @@ try { best = JSON.parse(localStorage.getItem('emberward') || '{}'); } catch (e) 
 const enemySpawns = [], itemSpawns = [], braziers = [];
 for (let y = 0; y < LH; y++) for (let x = 0; x < LW; x++){
   const ch = grid[y][x], wx = x * TS, wy = y * TS;
-  if ('cefSLHBP*z'.includes(ch)) grid[y][x] = '.';
+  if ('cefSKLHBaWCP*z'.includes(ch)) grid[y][x] = '.';
   if (ch === 'P') spawnPt = {x: wx + 5, y: wy - 30};
   else if (ch === '*') checkpoints.push({x: wx, y: wy, lit: false});
   else if (ch === 'z') braziers.push({x: wx, y: wy, lit: false});
-  else if ('cefS'.includes(ch)) itemSpawns.push({x: wx, y: wy, kind: ch});
-  else if ('LHB'.includes(ch)) enemySpawns.push({x: wx, y: wy, kind: ch});
+  else if ('cefSK'.includes(ch)) itemSpawns.push({x: wx, y: wy, kind: ch});
+  else if ('LHBaWC'.includes(ch)) enemySpawns.push({x: wx, y: wy, kind: ch});
 }
 function surfaceY(col){
   for (let r = 0; r < LH; r++) if (grid[r] && grid[r][col] === '#') return r * TS;
@@ -606,17 +662,22 @@ const HINTS = [
   {x: 21.8 * TS, y: 330, txt: 'X — SWORD'},
   {x: 41 * TS, y: 330, txt: 'HOLD JUMP + X — RISING STRIKE'},
   {x: 63 * TS, y: 300, txt: '↓ + X IN AIR — PLUNGE'},
+  {x: 76 * TS, y: 300, txt: '↑ + X — SKYWARD CUT'},
   {x: 186 * TS, y: 340, txt: 'PLUNGE BOUNCES OFF FOES'},
 ];
 
 function makeEnemy(sp){
-  if (sp.kind === 'L') return {kind:'L', x:sp.x + 4, y:sp.y, w:24, h:56, vx:-0.9, vy:0, dir:-1, hp:1, t:0, flinch:0, st:'patrol', stT:0, dead:false};
-  if (sp.kind === 'H') return {kind:'H', x:sp.x + 2, y:sp.y + 16, w:40, h:28, vx:-0.8, vy:0, dir:-1, hp:1, t:0, flinch:0, st:'patrol', stT:0, dead:false};
-  return {kind:'B', x:sp.x + 2, y:sp.y, w:30, h:60, vx:-0.5, vy:0, dir:-1, hp:3, t:0, flinch:0, st:'walk', stT:0, dead:false};
+  const v = 0.8 + hash(sp.x, sp.y * 7) * 0.5; // per-beast tempo: no two patrol alike
+  if (sp.kind === 'L') return {kind:'L', x:sp.x + 4, y:sp.y, w:24, h:56, vx:-0.9 * v, vy:0, dir:-1, hp:1, t:0, flinch:0, st:'patrol', stT:0, spd:v, dead:false};
+  if (sp.kind === 'H') return {kind:'H', x:sp.x - 2, y:sp.y - 6, w:44, h:38, vx:-1.1 * v, vy:0, dir:-1, hp:1, t:0, flinch:0, st:'patrol', stT:0, spd:v, dead:false};
+  if (sp.kind === 'a') return {kind:'a', x:sp.x + 6, y:sp.y + 8, w:20, h:22, vx:0, vy:0, dir:-1, hp:1, t:0, flinch:0, st:'wait', stT:0, spd:v, pause:20, dead:false};
+  if (sp.kind === 'W') return {kind:'W', x:sp.x, y:sp.y, baseY:sp.y, w:40, h:24, vx:0, vy:0, dir:-1, hp:1, t:0, flinch:0, st:'float', stT:0, spd:v, dead:false};
+  if (sp.kind === 'C') return {kind:'C', x:sp.x + 2, y:sp.y, w:26, h:58, vx:-0.4 * v, vy:0, dir:-1, hp:2, t:0, flinch:0, st:'walk', stT:0, spd:v, cd:60, dead:false};
+  return {kind:'B', x:sp.x + 2, y:sp.y, w:30, h:60, vx:-0.5 * v, vy:0, dir:-1, hp:3, t:0, flinch:0, st:'walk', stT:0, spd:v, cd:120, dead:false};
 }
 function resetLevel(fromCheckpoint){
   enemies = enemySpawns.map(makeEnemy);
-  particles = []; popups = []; corpses = []; fireballs = []; toasts = [];
+  particles = []; popups = []; corpses = []; fireballs = []; shots = []; toasts = [];
   chain = 0; lastKillF = -999;
   if (!fromCheckpoint){
     items = itemSpawns.map(s => ({...s, taken:false, t: hash(s.x, s.y) * 9}));
@@ -741,13 +802,14 @@ function hurtEnemy(e, dmg, crit, fromX){
   e.dead = true; killCount++;
   if (!loreSeen[e.kind]){                     // bestiary line, first kill of each kind
     loreSeen[e.kind] = true;
-    toast(e.kind === 'L' ? 'The kingdom’s levy still musters.'
-        : e.kind === 'H' ? 'The dogs stayed. The fire kept them.'
-        : 'Sellswords, paid in dead men’s coin.');
+    const LORE = {L:'The kingdom’s levy still musters.', H:'The dogs stayed. The fire kept them.',
+      B:'Sellswords, paid in dead men’s coin.', a:'Something small learned to love the ash.',
+      W:'It rose as smoke and never came down.', C:'They tithe to a nameless warmth.'};
+    toast(LORE[e.kind]);
   }
   chain = (frame - lastKillF < 90) ? chain + 1 : 1;
   lastKillF = frame; bestChain = Math.max(bestChain, chain);
-  const basePts = e.kind === 'L' ? 20 : e.kind === 'H' ? 30 : 60;
+  const basePts = {L:20, H:30, B:60, a:40, W:45, C:50}[e.kind]; // small and airborne pay best
   let pts = basePts * (crit ? 2 : 1);
   if (player && !player.onGround && !player.dead){
     pts = Math.round(pts * 1.5);
@@ -764,7 +826,7 @@ function hurtEnemy(e, dmg, crit, fromX){
   else if (chain >= 4) popup(cx, e.y - 38, 'RAMPAGE!', '#ff7a3c', true);
   if (crit) shake(2);
   // corpse launch
-  const fr = e.kind === 'B' ? (e.st === 'raise' ? 'raise' : 'walk1') : e.kind === 'H' ? 0 : 0;
+  const fr = e.kind === 'B' ? (e.st === 'raise' ? 'raise' : 'walk1') : e.kind === 'C' ? 'walk1' : e.kind === 'a' ? 1 : 0;
   corpses.push({kind: e.kind, fr, x: e.x, y: e.y, vx: (cx < fromX ? -3.5 : 3.5), vy: -5,
     rot: 0, vr: (cx < fromX ? -0.2 : 0.2), t: 0, ash: crit, dir: e.dir});
   burst(cx, cy, crit ? '#241a12' : '#c9b89a', crit ? 14 : 8, 4);
@@ -772,8 +834,8 @@ function hurtEnemy(e, dmg, crit, fromX){
 function swordBox(){
   const p = player;
   if (p.atk < 4 || p.atk > 11) return null;
-  if (p.atkUp) return {x: p.x - 8, y: p.y - 30, w: p.w + 16, h: 40};
-  return {x: p.dir > 0 ? p.x + p.w - 2 : p.x - 34, y: p.y + 8, w: 36, h: 26};
+  if (p.atkUp) return {x: p.x - 8, y: p.y - 34, w: p.w + 16, h: 44};
+  return {x: p.dir > 0 ? p.x + p.w - 2 : p.x - 34, y: p.y + 8, w: 36, h: 34}; // arc sweeps past horizontal, low enough for hounds
 }
 function hurtPlayer(fromX, dmg){
   const p = player;
@@ -837,8 +899,13 @@ function updatePlayer(){
       p.plunge = true; p.hitDone = {}; AU.slash();
     } else if (!p.plunge){
       p.atk = 14; p.atkCd = 20; p.hitDone = {}; AU.slash();
-      p.atkUp = p.onGround && keys.jump;               // RISING STRIKE: leap with an upward cut
-      if (p.atkUp){ p.vy = -8.5; p.coyote = 0; burst(p.x + 11, p.y + p.h, '#8a7a5c', 3, 3); }
+      if (p.onGround && (keys.jump || keys.up)){       // RISING STRIKE: leap with an upward cut
+        p.atkUp = true;
+        p.vy = -8.5; p.coyote = 0; burst(p.x + 11, p.y + p.h, '#8a7a5c', 3, 3);
+      } else if (!p.onGround && keys.up){              // SKYWARD CUT: upward slash mid-jump, foes above
+        p.atkUp = true;
+        p.vy = Math.min(p.vy, -1.5);                   // brief lift so the cut connects
+      } else p.atkUp = false;
     }
   }
   if (p.atk === 0) p.atkUp = false;
@@ -916,10 +983,10 @@ function updateEnemies(){
       } else if (e.st === 'poise'){
         if (e.stT > 16){ e.st = 'lunge'; e.stT = 0; e.dir = p.x > e.x ? 1 : -1; AU.noise(0.05, 0.06, 800); }
       } else if (e.st === 'lunge'){
-        moveX(e, 2.4 * e.dir);
+        moveX(e, 2.4 * e.spd * e.dir);
         if (e.stT > 14 || (onG && !groundAhead(e))){ e.st = 'cool'; e.stT = 0; }
       } else { // cool
-        if (e.stT > 30){ e.st = 'patrol'; e.vx = 0.9 * e.dir; }
+        if (e.stT > 30){ e.st = 'patrol'; e.vx = 0.9 * e.spd * e.dir; }
       }
     } else if (e.kind === 'H'){
       e.vy = Math.min(e.vy + 0.55, 13);
@@ -932,22 +999,91 @@ function updateEnemies(){
           e.st = 'windup'; e.stT = 0; e.vx = 0; AU.growl();
         }
       } else if (e.st === 'windup'){
-        if (e.stT > 24){ e.st = 'charge'; e.stT = 0; e.dir = p.x > e.x ? 1 : -1; }
+        if (e.stT > 24){
+          e.st = 'charge'; e.stT = 0; e.dir = p.x > e.x ? 1 : -1;
+          if (onG) e.vy = -3.2;                        // springs off its haunches
+        }
       } else if (e.st === 'charge'){
-        const hitWall = moveX(e, 3.4 * e.dir);
+        const hitWall = moveX(e, 4.0 * e.spd * e.dir);
         if (hitWall || (onG && !groundAhead(e)) || e.stT > 70){ e.st = 'tired'; e.stT = 0; }
       } else { // tired
-        if (e.stT > 36){ e.st = 'patrol'; e.vx = 0.8 * e.dir; }
+        if (e.stT > 36){ e.st = 'patrol'; e.vx = 1.1 * e.spd * e.dir; }
       }
-    } else if (e.kind === 'B'){
+    } else if (e.kind === 'a'){                        // ash imp: waits, then leaps at you, erratic
       e.vy = Math.min(e.vy + 0.55, 13);
       const onG = moveY(e, e.vy) === 'floor';
       e.stT++;
+      if (onG){
+        e.vx = 0;
+        if (e.st !== 'wait'){ e.st = 'wait'; e.stT = 0; }
+        const dx = p.x - e.x;
+        if (!p.dead && e.stT > e.pause && Math.abs(dx) < 250){
+          e.dir = dx > 0 ? 1 : -1;
+          const high = hash(e.x + e.t, e.stT) > 0.6;
+          e.vy = high ? -9.5 : -7;
+          e.vx = (1.8 + hash(e.stT, e.x + e.t) * 1.8) * e.dir;
+          e.st = 'leap'; e.stT = 0;
+          e.pause = 14 + hash(e.x * 3 + e.t, e.stT) * 34;
+          AU.noise(0.04, 0.05, 1200);
+        }
+      } else moveX(e, e.vx);
+    } else if (e.kind === 'W'){                        // cinder wraith: floats, then swoops
+      e.stT++;
+      if (e.st === 'float'){
+        e.x += 0.3 * e.spd * e.dir;
+        e.y = e.baseY + Math.sin(e.t * 0.045) * 14;
+        if (e.t % 240 === 0) e.dir *= -1;
+        const dx = (p.x + p.w / 2) - (e.x + e.w / 2);
+        if (!p.dead && Math.abs(dx) < 230 && p.y > e.y - 20){
+          e.st = 'dive'; e.stT = 0; e.dir = dx > 0 ? 1 : -1;
+          e.dvx = dx / 34; e.dvy = Math.max(1, (p.y + 10 - e.y) / 34);
+          AU.noise(0.15, 0.05, 2200);
+        }
+      } else if (e.st === 'dive'){
+        e.x += e.dvx; e.y += e.dvy;
+        if (e.stT > 34){ e.st = 'rise'; e.stT = 0; }
+      } else { // rise
+        e.y -= 2.2; e.x += e.dvx * 0.5;
+        if (e.stT > 40){ e.st = 'float'; e.baseY = e.y; }
+      }
+    } else if (e.kind === 'C'){                        // ember cultist: 2-hit lobber
+      e.vy = Math.min(e.vy + 0.55, 13);
+      const onG = moveY(e, e.vy) === 'floor';
+      e.stT++; if (e.cd > 0) e.cd--;
+      const cdx = (p.x + p.w / 2) - (e.x + e.w / 2);
+      if (e.st === 'walk'){
+        if (moveX(e, e.vx) || (onG && !groundAhead(e))){ e.dir *= -1; e.vx = Math.abs(e.vx) * e.dir; }
+        if (!p.dead && e.cd === 0 && Math.abs(cdx) < 300 && Math.abs(cdx) > 40){
+          e.st = 'raise'; e.stT = 0; e.dir = cdx > 0 ? 1 : -1; e.vx = 0;
+          AU.noise(0.08, 0.05, 600);
+        }
+      } else if (e.st === 'raise'){
+        if (e.stT > 26){
+          shots.push({type:'ember', x: e.x + e.w / 2, y: e.y + 4, w:10, h:10,
+            vx: Math.max(-4, Math.min(4, cdx / 55)), vy: -6.4, t:0});
+          AU.tone(90, 55, 0.18, 'sawtooth', 0.08); AU.noise(0.1, 0.06, 500);
+          e.st = 'cool'; e.stT = 0; e.cd = 150;
+        }
+      } else if (e.stT > 24){ e.st = 'walk'; e.vx = 0.4 * e.spd * e.dir; }
+    } else if (e.kind === 'B'){
+      e.vy = Math.min(e.vy + 0.55, 13);
+      const onG = moveY(e, e.vy) === 'floor';
+      e.stT++; if (e.cd > 0) e.cd--;
       if (e.st === 'walk'){
         if (moveX(e, e.vx) || (onG && !groundAhead(e))){ e.dir *= -1; e.vx = Math.abs(e.vx) * e.dir; }
         const dx = p.x - (e.x + e.w / 2);
-        if (!p.dead && Math.abs(dx) < 92 && Math.abs((p.y + p.h) - (e.y + e.h)) < 40){
+        const level = Math.abs((p.y + p.h) - (e.y + e.h)) < 40;
+        if (!p.dead && Math.abs(dx) < 92 && level){
           e.st = 'raise'; e.stT = 0; e.dir = dx > 0 ? 1 : -1; AU.clang();
+        } else if (!p.dead && e.cd === 0 && level && Math.abs(dx) > 130 && Math.abs(dx) < 280){
+          e.st = 'hurl'; e.stT = 0; e.dir = dx > 0 ? 1 : -1; e.vx = 0; AU.clang(); // an axe for the road
+        }
+      } else if (e.st === 'hurl'){
+        if (e.stT > 26){
+          shots.push({type:'axe', x: e.x + (e.dir > 0 ? e.w : -12), y: e.y + 6, w:14, h:14,
+            vx: 2.9 * e.dir, vy: -7.2, t:0});
+          AU.noise(0.08, 0.1, 900);
+          e.st = 'recover'; e.stT = 0; e.cd = 280;
         }
       } else if (e.st === 'raise'){
         if (e.stT > 30){ e.st = 'swing'; e.stT = 0; AU.noise(0.1, 0.12, 400); shake(2); }
@@ -958,7 +1094,7 @@ function updateEnemies(){
         }
         if (e.stT > 12){ e.st = 'recover'; e.stT = 0; }
       } else {
-        if (e.stT > 40){ e.st = 'walk'; e.vx = 0.5 * e.dir; }
+        if (e.stT > 40){ e.st = 'walk'; e.vx = 0.5 * e.spd * e.dir; }
       }
     }
     if (e.flashW > 0) e.flashW--;
@@ -1009,6 +1145,27 @@ function updateEnemies(){
       if (e.kind === 'B'){ dead = true; break; } // stops on heavies, pierces fodder
     }
     if (dead){ burst(f.x + 6, f.y + 6, '#ff7a3c', 10, 3); fireballs.splice(i, 1); }
+  }
+  // enemy shots: hurled axes arc through everything; ember lobs burst on stone
+  for (let i = shots.length - 1; i >= 0; i--){
+    const s = shots[i];
+    s.t++;
+    s.vy += s.type === 'axe' ? 0.28 : 0.14;
+    s.x += s.vx; s.y += s.vy;
+    if (s.type === 'ember' && s.t % 3 === 0) burst(s.x + 4, s.y + 4, '#c96a2e', 1, 0.6, 0);
+    if (sb && overlap(sb, s)){                               // bat it out of the air
+      AU.clang(); burst(s.x + 5, s.y + 5, s.type === 'axe' ? '#8f8a7a' : '#ff7a3c', 6, 3);
+      popup(s.x + 5, s.y - 8, 'PARRIED', '#8ae2ff');
+      shots.splice(i, 1); continue;
+    }
+    if (!p.dead && !transform && overlap(s, p)){
+      hurtPlayer(s.x, 1); shots.splice(i, 1); continue;
+    }
+    const stx = Math.floor((s.x + s.w / 2) / TS), sty = Math.floor((s.y + s.h) / TS);
+    if (s.type === 'ember' && isSolid(stx, sty)){
+      burst(s.x + 5, s.y + 5, '#ff7a3c', 8, 3); shots.splice(i, 1); continue;
+    }
+    if (s.y > LH * TS + 80 || s.t > 300) shots.splice(i, 1);
   }
 }
 function updateItems(){
@@ -1441,29 +1598,40 @@ function drawSprite(img, x, y, flip){
 function enemyAnchor(e, img){
   return {x: e.x + e.w / 2 - img.width / 2 - cam.x, y: e.y + e.h - img.height};
 }
+const ENSPR = {L:'levy', H:'hound', B:'brigand', a:'imp', W:'wraith', C:'cult'};
+function enemyVariant(e){
+  if (e.kind === 'L') return (e.t / 12 | 0) % 2;
+  if (e.kind === 'H') return e.st === 'windup' ? 2 : (e.t / (e.st === 'charge' ? 4 : 8) | 0) % 2;
+  if (e.kind === 'B') return (e.st === 'raise' || e.st === 'hurl') ? 'raise' : e.st === 'swing' ? 'swing' : (e.t / 14 | 0) % 2 ? 'walk2' : 'walk1';
+  if (e.kind === 'a') return e.st === 'leap' ? 1 : 0;
+  if (e.kind === 'W') return (frame / 10 | 0) % 2;
+  return e.st === 'raise' ? 'raise' : (e.t / 16 | 0) % 2 ? 'walk2' : 'walk1';
+}
 function drawEnemies(){
   for (const e of enemies){
     if (e.dead) continue;
-    let img;
-    if (e.kind === 'L') img = spr('levy', (e.t / 12 | 0) % 2);
-    else if (e.kind === 'H') img = spr('hound', e.st === 'windup' ? 2 : (e.t / (e.st === 'charge' ? 4 : 8) | 0) % 2);
-    else img = spr('brigand', e.st === 'raise' ? 'raise' : e.st === 'swing' ? 'swing' : (e.t / 14 | 0) % 2 ? 'walk2' : 'walk1');
+    const variant = enemyVariant(e);
+    let img = spr(ENSPR[e.kind], variant);
     const a = enemyAnchor(e, img);
     if (a.x < -120 || a.x > VW + 120) continue;
-    if (e.flashW > 0) img = e.kind === 'L' ? sprWhite('levy', (e.t / 12 | 0) % 2) : e.kind === 'H' ? sprWhite('hound', 0) : sprWhite('brigand', 'walk1');
+    if (e.kind !== 'W'){ // contact shadow pins them to the floor
+      ctx.fillStyle = 'rgba(10,5,3,.4)';
+      ctx.beginPath(); ctx.ellipse(e.x + e.w / 2 - cam.x, e.y + e.h + 3, e.w / 2.1, 4, 0, 0, 7); ctx.fill();
+    }
+    if (e.flashW > 0) img = sprWhite(ENSPR[e.kind], variant);
+    if (e.kind === 'W') ctx.globalAlpha = 0.9;
     drawSprite(img, a.x, a.y, e.dir < 0);
-    if (((e.kind === 'B' && e.st === 'raise') || (e.kind === 'L' && e.st === 'poise') || (e.kind === 'H' && e.st === 'windup'))
+    ctx.globalAlpha = 1;
+    if (((e.kind === 'B' && (e.st === 'raise' || e.st === 'hurl')) || (e.kind === 'L' && e.st === 'poise')
+        || (e.kind === 'H' && e.st === 'windup') || (e.kind === 'C' && e.st === 'raise'))
         && (e.stT / 4 | 0) % 2){ // telegraph blink
       ctx.fillStyle = 'rgba(255,180,80,.6)';
       ctx.fillRect(a.x + (e.dir > 0 ? img.width - 8 : 2), a.y - 6, 6, 6);
     }
   }
   for (const c of corpses){
-    const img = c.ash
-      ? (c.kind === 'L' ? sprAsh('levy', 0) : c.kind === 'H' ? sprAsh('hound', 0) : sprAsh('brigand', 'walk1'))
-      : (c.t < 3
-        ? (c.kind === 'L' ? sprWhite('levy', 0) : c.kind === 'H' ? sprWhite('hound', 0) : sprWhite('brigand', 'walk1'))
-        : (c.kind === 'L' ? spr('levy', 0) : c.kind === 'H' ? spr('hound', 0) : spr('brigand', 'walk1')));
+    const key = ENSPR[c.kind], fr = c.fr;
+    const img = c.ash ? sprAsh(key, fr) : (c.t < 3 ? sprWhite(key, fr) : spr(key, fr));
     ctx.save();
     ctx.translate(c.x - cam.x + img.width / 2, c.y + img.height / 2);
     ctx.rotate(c.rot);
@@ -1471,6 +1639,15 @@ function drawEnemies(){
     ctx.drawImage(img, -img.width / 2, -img.height / 2);
     ctx.restore();
     ctx.globalAlpha = 1;
+  }
+  for (const s of shots){
+    if (s.type === 'axe'){
+      ctx.save(); ctx.translate(s.x + 7 - cam.x, s.y + 7); ctx.rotate(s.t * 0.28 * Math.sign(s.vx));
+      ctx.fillStyle = '#544838'; ctx.fillRect(-2, -8, 4, 16);
+      ctx.fillStyle = '#8f8a7a'; ctx.fillRect(-9, -8, 8, 7);
+      ctx.fillStyle = '#c9c4b4'; ctx.fillRect(-9, -8, 2, 7);
+      ctx.restore();
+    } else flame(s.x + 5 - cam.x, s.y + 5, 5, 3, false);
   }
   for (const f of fireballs){
     flame(f.x + 6 - cam.x, f.y + 6, 7, 1, false);
@@ -1506,7 +1683,7 @@ function drawPlayer(){
     if (p.atkUp) ctx.arc(cx, p.y + 2, 26, Math.PI * 1.15, Math.PI * 1.85);
     else {
       const ax = p.dir > 0 ? p.x + p.w + 16 - cam.x : p.x - 16 - cam.x;
-      ctx.arc(ax, p.y + 20, 22, p.dir > 0 ? -1.2 : Math.PI - 0.4, p.dir > 0 ? 0.4 : Math.PI + 1.2);
+      ctx.arc(ax, p.y + 20, 22, p.dir > 0 ? -1.2 : Math.PI - 1.0, p.dir > 0 ? 1.0 : Math.PI + 1.2); // sweeps past horizontal
     }
     ctx.stroke();
   }
@@ -1658,7 +1835,7 @@ function titleScreen(){
   ornament(VW / 2, 288 + bob, 460, '#8a6a3a');
   drawSprite(spr('hero', 'idle', 0), VW / 2 - 38, 330 + Math.sin(frame * 0.07) * 4, false);
   if ((frame / 32 | 0) % 2) text('PRESS ENTER TO KEEP THE FLAME', VW / 2, 452, 22, '#f3ead6');
-  text('ARROWS move    SPACE jump    X sword    ↓+X in air plunge    JUMP+X rising strike', VW / 2, 492, 14, '#a89878');
+  text('ARROWS move   SPACE jump   X sword   ↑+X skyward cut   ↓+X in air plunge   JUMP+X rising strike', VW / 2, 492, 14, '#a89878');
   text('M music     P pause' + (best.grade ? '     BEST GRADE ' + best.grade : ''), VW / 2, 514, 14, '#a89878');
 }
 function drawCard(){
@@ -1770,6 +1947,18 @@ function frameStep(){
   keys.jumpHit = keys.atkHit = keys.castHit = keys.startHit = keys.pauseHit = false;
 }
 requestAnimationFrame(tick);
+
+// headless-playtest hooks (no gameplay effect)
+window.EW = {
+  get state(){ return state; }, set state(s){ state = s; },
+  get player(){ return player; }, get enemies(){ return enemies; }, get shots(){ return shots; },
+  get xp(){ return xp; }, set xp(v){ xp = v; }, get stage(){ return stage; },
+  get hasCoal(){ return hasCoal; }, get embers(){ return embers; }, get items(){ return items; },
+  get frame(){ return frame; }, get grid(){ return grid; }, get cam(){ return cam; },
+  keys, spr, swordBox,
+  warp(x, y){ player.x = x; if (y !== undefined) player.y = y; player.vy = 0;
+    cam.x = Math.max(0, Math.min(x - VW * 0.38, LW * TS - VW)); },
+};
 </script>
 <!-- GAME END -->
 </body>
