@@ -2275,7 +2275,9 @@ function vignette(dark){
 function drawWorld(){
   ctx.save();
   if (cam.shake > 0) ctx.translate((Math.random() - 0.5) * cam.shake, (Math.random() - 0.5) * cam.shake);
-  drawSky(); drawParallax(); drawTiles(); drawDecor(); drawCheckpoints();
+  drawSky(); drawParallax();
+  if (window.EW_BG_ONLY){ ctx.restore(); return; } // art-review mode: backdrop only
+  drawTiles(); drawDecor(); drawCheckpoints();
   drawItems(); drawEnemies();
   if (transform && transform.t < 65){
     ctx.fillStyle = 'rgba(10,5,3,.4)'; ctx.fillRect(-10, -10, VW + 20, VH + 20);
@@ -2421,7 +2423,8 @@ function frameStep(){
         maybeLevelUp();
       }
     }
-    drawWorld(); drawHUD(); scanlines();
+    drawWorld();
+    if (!window.EW_BG_ONLY){ drawHUD(); scanlines(); }
     if (paused){
       ctx.fillStyle = 'rgba(12,6,4,.55)'; ctx.fillRect(0, 0, VW, VH);
       text('PAUSED', VW / 2, VH / 2, 44, '#f3ead6');
